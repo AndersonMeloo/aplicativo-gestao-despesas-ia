@@ -63,24 +63,39 @@ const buildMockTransactionms = () => {
     };
 
     // Receitas — salário recebido a cada duas semanas nos últimos ~3 meses
-    [0, 14, 30, 44, 66, 74, 90].forEach((n) => add(n, 'Salary', 2750, 'income', 'Salary deposit'));
+    // 0 Dia Atual, 14 dias atrás, 30 dias atrás, 44 dias atrás, 60 dias atrás, 74 dias atrás, 90 dias atrás
+    [0, 14, 30, 44, 60, 74, 90].forEach((n) => add(n, 'Salary', 2750, 'income', 'Salary deposit'));
     add(15, 'Freelance', 800, 'income', 'Client project');
     add(75, 'Freelance', 1200, 'income', 'Client project');
 
     // Despesa com aluguel (mensal)
+    // 3 dias atrás, 33 dias atrás, 63 dias atrás, 93 dias atrás
     [3, 33, 63, 93].forEach((n) => add(n, 'Rent', 1800, 'expense', 'Monthly rent'));
 
     // Contas (mensal)
-    [4, 37, 67].forEach((n) => {
-        add(n, 'Entertainment', 15.99, 'expense', 'Netflix');
-        add(n, 'Entertainment', 10.99, 'expense', 'Spotify');
-    })
+    // 7 dias atrás, 37 dias atrás, 67 dias atrás
+    [7, 37, 67].forEach((n) => add(n, 'Utilities', 220, 'expense', 'Electricity + Internet'));
 
     // Assinaturas
+    // 4 Dias atrás, 34 dias atrás, 64 dias atrás, 94 dias atrás
+    [4, 34, 64, 94].forEach((n) => {
+        add(n, 'Entertainment', 15.99, 'expense', 'Netflix');
+        add(n, 'Entertainment', 10.99, 'expense', 'Spotify');
+    });
 
     // Compras de supermercado semanais
+    // 2 dias atrás, 9 dias atrás, 16 dias atrás, 23 dias atrás, 30 dias atrás, 37 dias atrás, 44 dias atrás, 51 dias atrás, 58 dias atrás, 65 dias atrás, 72 dias atrás, 79 dias atrás
+    [2, 9, 16, 23, 30, 37, 44, 51, 58, 65, 72, 79].forEach((n) => {
+        add(n, 'Groceries', 60 + (n % 35), 'expense', 'Weekly groceries');
+    });
 
     // Alimentação — várias pequenas despesas
+    const  foodDays = [1, 2, 5, 6, 8, 11, 13, 17, 19, 22, 25, 28, 31, 36, 41, 52, 58, 67, 73, 81];
+    foodDays.forEach((n, i) => {
+        const amount = 8 + (n % 32);
+        const desc = i % 4 === 0 ? 'Coffee' : i % 4 === 1 ? 'Lunch' : i % 4 === 2 ? 'Dinner out' : 'Takeout';
+        add(n, 'Food & Dining', amount, 'expense', desc);
+    })
 
     // Transporte
 
