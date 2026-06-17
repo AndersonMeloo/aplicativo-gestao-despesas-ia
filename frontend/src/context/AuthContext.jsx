@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import api from "../libs/axios";
-import { API_PATHS } from "../utils/constants";
+import { API_PATHS } from '../utils/apiPaths.js';
 
 // Cria o contexto global de autenticação
 const AuthContext = createContext(null);
