@@ -1,9 +1,11 @@
 import { Outlet } from 'react-router-dom';
 import Topbar from './Topbar.jsx';
+import Sidebar from './ui/Sidebar.jsx';
 
 const Layout = () => {
     return (
         <div className="h-screen flex bg-slate-50 overflow-hidden">
+            <Sidebar />
             <div className="flex-1 flex flex-col min-w-0">
                 <Topbar />
                 <main className="flex-1 overflow-y-auto p-6 lg:p-8">
