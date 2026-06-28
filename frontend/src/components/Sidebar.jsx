@@ -8,7 +8,7 @@ import {
     Target,
     Wallet,
 } from 'lucide-react'
-import { useAuth } from '../../context/AuthContext.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 
 const navItems = [
     { to: '/', label: 'Dashboard', icon: LayoutDashboardIcon },

@@ -1,4 +1,4 @@
-import { lucideIconByName } from "../../utils/icons.js";
+import { lucideIconByName } from "../utils/icons.js";
 
 const dimensionMap = {
     sm: { box: 'h-8 w-8', icon: 14 },
