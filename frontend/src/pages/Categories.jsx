@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Plus, Pencil, Trash2, Folder } from 'lucide-react';
 import toast from 'react-hot-toast';
-import api from '../lib/axios.js';
+import api from '../libs/axios.js';
 import { API_PATHS } from '../utils/apiPaths.js';
 import Button from '../components/ui/Button.jsx';
 import Modal from '../components/ui/Modal.jsx';
@@ -67,7 +67,7 @@ const Categories = () => {
 
 
     return (
-        
+
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
