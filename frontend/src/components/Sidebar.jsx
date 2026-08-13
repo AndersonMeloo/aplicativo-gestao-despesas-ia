@@ -12,10 +12,10 @@ import { useAuth } from '../context/AuthContext.jsx';
 
 const navItems = [
     { to: '/', label: 'Dashboard', icon: LayoutDashboardIcon },
-    { to: '/transactions', label: '', icon: ArrowLeftRight },
-    { to: '/categories', label: '', icon: Folder },
-    { to: '/budgets', label: '', icon: Target },
-    { to: '/insights', label: '', icon: Sparkles },
+    { to: '/transactions', label: 'Transactions', icon: ArrowLeftRight },
+    { to: '/categories', label: 'Categories', icon: Folder },
+    { to: '/budgets', label: 'Budgets', icon: Target },
+    { to: '/insights', label: 'AI Insights', icon: Sparkles },
 ]
 
 const Sidebar = () => {
