@@ -71,7 +71,9 @@ const Insights = () => {
     };
 
     useEffect(() => {
-        fetchInsights();
+        Promise.resolve().then(() => {
+            void fetchInsights();
+        });
     }, []);
 
     const generate = async (type) => {
