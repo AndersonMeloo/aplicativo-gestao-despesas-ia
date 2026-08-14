@@ -64,7 +64,7 @@ const Insights = () => {
             const res = await api.get(API_PATHS.INSIGHTS.LIST);
             setInsights(res.data);
         } catch (err) {
-            toast.error('Failed to load insights');
+            toast.error('Failed to load insights', err);
         } finally {
             setLoading(false);
         }
@@ -120,7 +120,7 @@ const Insights = () => {
     return (
 
         <div className="space-y-6">
-            
+
             <div>
                 <h1 className="text-3xl font-bold text-slate-900 tracking-tight">AI Insights</h1>
                 <p className="text-sm text-slate-500 mt-1.5">
