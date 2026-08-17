@@ -17,7 +17,7 @@ import Spinner from '../components/Spinner.jsx';
 import InsightCard from '../components/InsightCard.jsx';
 import KpiCard from '../components/KpiCard.jsx';
 
-const ActionCard = ({ title, description, icon: Icon, accentGradient, accentText, onClick, generating, lastGenerated }) => (
+const ActionCard = ({ title, description,  icon: Icon, accentGradient, accentText, onClick, generating, lastGenerated }) => (
 
     <button
         onClick={onClick}
