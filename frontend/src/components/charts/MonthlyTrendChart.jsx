@@ -16,7 +16,7 @@ const MonthlyTrendChart = ({ data, currency }) => {
     if (!data || data.length === 0) {
 
         return (
-            <div className="fkex items-center justify-center h-64 text-sm text-slate-400">
+            <div className="flex items-center justify-center h-64 text-sm text-slate-400">
                 No data yet
             </div>
         );
