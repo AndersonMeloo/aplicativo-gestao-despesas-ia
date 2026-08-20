@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../context/AuthContext"
 import api from "../libs/axios";
 import API_PATHS from "../utils/apiPaths";
@@ -41,6 +41,31 @@ const Transactions = () => {
             setLoading(false)
         }
     }
+
+    useEffect(() => {
+        fetchData()
+    }, [filters.search, filters.categoryId])
+
+    useEffect(() => {
+        setPage(1);
+    }, [filters.search, filters.type, filters.categoryId]);
+
+    const transactions = useMemo(
+        () =>
+            filters.type
+                ? allTransactions.filter((t) => t.type === filters.type)
+                : allTransactions,
+        [allTransactions, filters.type]
+    )
+
+    const counts = useMemo(
+        () => ({
+            all: allTransactions.length,
+            income: allTransactions.filter((t) => t.type === 'income').length,
+            expense: allTransactions.filter((t) => t.type === 'expense').length,
+        }),
+        [allTransactions]
+    );
 
 }
 
