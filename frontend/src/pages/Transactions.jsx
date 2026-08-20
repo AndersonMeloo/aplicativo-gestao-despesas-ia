@@ -67,6 +67,70 @@ const Transactions = () => {
         [allTransactions]
     );
 
+
+    const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    const trendData = useMemo(() => {
+        const now = new Date();
+        const txnKey = (t) => (t.transaction_date || '').split('T')[0];
+        const addAmount = (entry, t) => {
+            const amount = parseFloat(t.amount);
+            if (t.type === 'income') entry.income += amount;
+            else entry.expense += amount;
+        };
+
+        if (timeRange === '30d' || timeRange === '3m') {
+            const totalDays = timeRange === '30d' ? 30 : 90;
+            const buckets = [];
+            for (let i = totalDays - 1; i >= 0; i--) {
+                const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+                const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                const label = `${d.getMonth() + 1}/${d.getDate()}`;
+                buckets.push({ key, label, income: 0, expense: 0 });
+            }
+            const map = new Map(buckets.map((b) => [b.key, b]));
+            allTransactions.forEach((t) => {
+                const entry = map.get(txnKey(t));
+                if (entry) addAmount(entry, t);
+            });
+            return buckets;
+        }
+
+        if (timeRange === 'monthly') {
+            const buckets = [];
+            for (let i = 11; i >= 0; i--) {
+                const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                const label = `${MONTH_NAMES[d.getMonth()]} ${String(d.getFullYear()).slice(2)}`;
+                buckets.push({ key, label, income: 0, expense: 0 });
+            }
+            const map = new Map(buckets.map((b) => [b.key, b]));
+            allTransactions.forEach((t) => {
+                const [year, month] = txnKey(t).split('-');
+                const entry = map.get(`${year}-${month}`);
+                if (entry) addAmount(entry, t);
+            });
+            return buckets;
+        }
+
+        if (timeRange === 'yearly') {
+            const buckets = [];
+            for (let i = 4; i >= 0; i--) {
+                const y = String(now.getFullYear() - i);
+                buckets.push({ key: y, label: y, income: 0, expense: 0 });
+            }
+            const map = new Map(buckets.map((b) => [b.key, b]));
+            allTransactions.forEach((t) => {
+                const year = txnKey(t).split('-')[0];
+                const entry = map.get(year);
+                if (entry) addAmount(entry, t);
+            });
+            return buckets;
+        }
+
+        return [];
+    }, [allTransactions, timeRange]);
+
 }
 
 export default Transactions;
