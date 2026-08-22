@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Plus, Search, Pencil, Trash2, Wallet, Sparkles, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import toast from 'react-hot-toast';
-import api from '../lib/axios.js';
 import { API_PATHS } from '../utils/apiPaths.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { formatCurrency, formatDate } from '../utils/format.js';
@@ -13,6 +12,7 @@ import EmptyState from '../components/EmptyState.jsx';
 import Spinner from '../components/Spinner.jsx';
 import TransactionForm from '../components/TransactionForm.jsx';
 import TransactionTrendChart from '../components/charts/TransactionTrendChart.jsx';
+import api from '../libs/axios.js';
 
 const Transactions = () => {
     const { user } = useAuth();
@@ -42,7 +42,7 @@ const Transactions = () => {
             setAllTransactions(tRes.data);
             setCategories(cRes.data);
         } catch (err) {
-            toast.error('Failed to load transactions', errcomm);
+            toast.error('Failed to load transactions', err);
         } finally {
             setLoading(false);
         }
