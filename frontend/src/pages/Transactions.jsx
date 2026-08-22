@@ -131,6 +131,25 @@ const Transactions = () => {
         return [];
     }, [allTransactions, timeRange]);
 
+
+    const chartInterval = timeRange === '30d' ? 3 : timeRange === '3m' ? 10 : 0;
+
+    const totalPages = Math.max(1, Math.ceil(transactions.length / PAGE_SIZE));
+    const safePage = Math.min(page, totalPages);
+    const startIdx = (safePage - 1) * PAGE_SIZE;
+    const paginated = transactions.slice(startIdx, startIdx + PAGE_SIZE);
+
+    const getPageNumbers = () => {
+        if (totalPages <= 7) {
+            return Array.from({ length: totalPages }, (_, i) => i + 1);
+        }
+        if (safePage <= 4) return [1, 2, 3, 4, 5, '…', totalPages];
+        if (safePage >= totalPages - 3) {
+            return [1, '…', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+        }
+        return [1, '…', safePage - 1, safePage, safePage + 1, '…', totalPages];
+    };
+
 }
 
 export default Transactions;
