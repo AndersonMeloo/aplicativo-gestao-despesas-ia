@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import api from '../lib/axios.js';
 import { API_PATHS } from '../utils/apiPaths.js';
 import { todayDateString } from '../utils/format.js';
 import Input from './ui/Input.jsx';
 import Select from './ui/Select.jsx';
 import Textarea from './ui/Textarea.jsx';
 import Button from './ui/Button.jsx';
+import api from '../libs/axios.js';
 
 const TransctionForm = ({ initial, categories, onSaved, onCancel }) => {
 
