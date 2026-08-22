@@ -150,6 +150,12 @@ const Transactions = () => {
         return [1, '…', safePage - 1, safePage, safePage + 1, '…', totalPages];
     };
 
+    const tabs = [
+        { value: '', label: 'All', count: counts.all, badge: 'bg-slate-200 text-slate-700' },
+        { value: 'income', label: 'Income', count: counts.income, badge: 'bg-emerald-100 text-emerald-700' },
+        { value: 'expense', label: 'Expense', count: counts.expense, badge: 'bg-rose-100 text-rose-700' },
+    ];
+
 }
 
 export default Transactions;
