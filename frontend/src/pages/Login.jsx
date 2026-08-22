@@ -38,7 +38,7 @@ const Login = () => {
                     <div className="h-9 w-9 rounded-xl bg-linear-to-br from-violet-400 to-violet-600 flex items-center justify-center">
                         <Wallet size={18} className="text-white" />
                     </div>
-                    <span className="font-bold text-xl text-slate-900">ExpenseAI</span>
+                    <span className="font-bold text-xl text-slate-900">Gestão IA</span>
                 </div>
 
                 <div className="flex-1 flex items-center justify-center py-10">
