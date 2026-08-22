@@ -7,7 +7,7 @@ import {
     Legend,
     Area,
 } from 'recharts';
-import { formatCurrency } from '../../utils/currency';
+import { formatCurrency } from '../../utils/format';
 
 const TransactionTrendChart = ({ data, currency, interval = 3 }) => {
     if (!data || data.length === 0) {
