@@ -1,0 +1,5 @@
+npm init -y
+npm install -D nodemon
+npm install @google/genai bcryptjs cors dotenv express jsonwebtoken pg
+npm install @google/genai bcryptjs cors dotenv express jsonwebtoken pg
+npm install --save-dev nodemon
