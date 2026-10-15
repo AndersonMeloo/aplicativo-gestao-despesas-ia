@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import pkg from 'pg';
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 const { Pool, types } = pkg;
 
@@ -9,18 +9,14 @@ const { Pool, types } = pkg;
 // Retorna as colunas DATE (OID 1082) como strings simples no formato 'YYYY-MM-DD', em vez de objetos Date do JavaScript
 types.setTypeParser(1082, (val) => val);
 
+// O Neon exige SSL; um Postgres local normalmente não usa (DB_SSL=false)
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false },
+    ssl: process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: false },
 });
 
-pool.on('connect', () => {
-    console.log('Connected to the database');
-});
-
-pool.on('error', () => {
+pool.on('error', (err) => {
     console.error('Unexpected Postgres error:', err);
-    process.exit(-1);
 });
 
 export default pool;
