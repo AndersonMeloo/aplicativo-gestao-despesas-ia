@@ -12,10 +12,10 @@ import { useAuth } from '../context/AuthContext.jsx';
 
 const navItems = [
     { to: '/', label: 'Dashboard', icon: LayoutDashboardIcon },
-    { to: '/transactions', label: 'Transactions', icon: ArrowLeftRight },
-    { to: '/categories', label: 'Categories', icon: Folder },
-    { to: '/budgets', label: 'Budgets', icon: Target },
-    { to: '/insights', label: 'AI Insights', icon: Sparkles },
+    { to: '/transactions', label: 'Transações', icon: ArrowLeftRight },
+    { to: '/categories', label: 'Categorias', icon: Folder },
+    { to: '/budgets', label: 'Orçamentos', icon: Target },
+    { to: '/insights', label: 'Insights com IA', icon: Sparkles },
 ]
 
 const Sidebar = () => {
@@ -59,13 +59,14 @@ const Sidebar = () => {
 
                     <div className="flex-1 min-w-0">
                         <div className="text-sm font-semibold text-slate-900 truncate">
-                            { user?.name || 'User' }
+                            { user?.name || 'Usuário' }
                         </div>
                     </div>
                 </div>
 
                 <button
                     onClick={logout}
+                    title="Sair"
                 >
                     <LogOut size={16} />
                 </button>

@@ -16,7 +16,7 @@ import api from '../libs/axios.js';
 
 const Transactions = () => {
     const { user } = useAuth();
-    const currency = user?.currency || 'USD';
+    const currency = user?.currency || 'BRL';
     const [allTransactions, setAllTransactions] = useState([]);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -42,7 +42,7 @@ const Transactions = () => {
             setAllTransactions(tRes.data);
             setCategories(cRes.data);
         } catch (err) {
-            toast.error('Failed to load transactions', err);
+            toast.error('Falha ao carregar transações', err);
         } finally {
             setLoading(false);
         }
@@ -73,7 +73,7 @@ const Transactions = () => {
         [allTransactions]
     );
 
-    const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const MONTH_NAMES = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
     const trendData = useMemo(() => {
         const now = new Date();
@@ -90,7 +90,7 @@ const Transactions = () => {
             for (let i = totalDays - 1; i >= 0; i--) {
                 const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
                 const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-                const label = `${d.getMonth() + 1}/${d.getDate()}`;
+                const label = `${d.getDate()}/${d.getMonth() + 1}`;
                 buckets.push({ key, label, income: 0, expense: 0 });
             }
             const map = new Map(buckets.map((b) => [b.key, b]));
@@ -163,13 +163,13 @@ const Transactions = () => {
         setModalOpen(true);
     };
     const onDelete = async (id) => {
-        if (!confirm('Delete this transaction?')) return;
+        if (!confirm('Excluir esta transação?')) return;
         try {
             await api.delete(API_PATHS.TRANSACTIONS.DELETE(id));
-            toast.success('Transaction deleted');
+            toast.success('Transação excluída');
             fetchData();
         } catch (err) {
-            toast.error('Failed to delete', err);
+            toast.error('Falha ao excluir', err);
         }
     };
     const onSaved = () => {
@@ -179,7 +179,7 @@ const Transactions = () => {
 
     const generateInsight = async () => {
         if (transactions.length === 0) {
-            toast.error('No transactions in view to analyze');
+            toast.error('Nenhuma transação na tela para analisar');
             return;
         }
         setAnalysisLoading(true);
@@ -188,42 +188,42 @@ const Transactions = () => {
             const res = await api.post(API_PATHS.TRANSACTIONS.ANALYZE, { transactionIds: ids });
             setAnalysis(res.data);
         } catch (err) {
-            toast.error(err.response?.data?.message || 'Failed to analyze');
+            toast.error(err.response?.data?.message || 'Falha ao analisar');
         } finally {
             setAnalysisLoading(false);
         }
     };
 
     const tabs = [
-        { value: '', label: 'All', count: counts.all, badge: 'bg-slate-200 text-slate-700' },
-        { value: 'income', label: 'Income', count: counts.income, badge: 'bg-emerald-100 text-emerald-700' },
-        { value: 'expense', label: 'Expense', count: counts.expense, badge: 'bg-rose-100 text-rose-700' },
+        { value: '', label: 'Todas', count: counts.all, badge: 'bg-slate-200 text-slate-700' },
+        { value: 'income', label: 'Receitas', count: counts.income, badge: 'bg-emerald-100 text-emerald-700' },
+        { value: 'expense', label: 'Despesas', count: counts.expense, badge: 'bg-rose-100 text-rose-700' },
     ];
 
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Transactions</h1>
-                    <p className="text-sm text-slate-500 mt-1.5">All your income and expenses</p>
+                    <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Transações</h1>
+                    <p className="text-sm text-slate-500 mt-1.5">Todas as suas receitas e despesas</p>
                 </div>
                 <Button onClick={onCreate}>
-                    <Plus size={16} /> Add Transaction
+                    <Plus size={16} /> Nova transação
                 </Button>
             </div>
 
             <div className="bg-white rounded-3xl border border-slate-100 p-6">
                 <div className="mb-5 flex items-center justify-between gap-3">
                     <div>
-                        <h2 className="text-lg font-bold text-slate-900 tracking-tight">Transaction Trend</h2>
-                        <p className="text-xs text-slate-500 mt-1">Income vs expenses over time</p>
+                        <h2 className="text-lg font-bold text-slate-900 tracking-tight">Evolução das transações</h2>
+                        <p className="text-xs text-slate-500 mt-1">Receitas x despesas ao longo do tempo</p>
                     </div>
                     <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-full shrink-0">
                         {[
                             { value: '30d', label: '30D' },
                             { value: '3m', label: '3M' },
-                            { value: 'monthly', label: 'Monthly' },
-                            { value: 'yearly', label: 'Yearly' },
+                            { value: 'monthly', label: 'Mensal' },
+                            { value: 'yearly', label: 'Anual' },
                         ].map((r) => (
                             <button
                                 key={r.value}
@@ -250,9 +250,9 @@ const Transactions = () => {
                                 <Sparkles size={18} className="text-white" />
                             </div>
                             <div className="min-w-0">
-                                <h3 className="font-semibold text-slate-900">AI Spending Insight</h3>
+                                <h3 className="font-semibold text-slate-900">Análise de gastos com IA</h3>
                                 <p className="text-sm text-slate-500 truncate">
-                                    Get a quick analysis of the {transactions.length} transaction{transactions.length !== 1 ? 's' : ''} in this view
+                                    Uma análise rápida {transactions.length === 1 ? 'da transação exibida' : `das ${transactions.length} transações exibidas`}
                                 </p>
                             </div>
                         </div>
@@ -264,12 +264,12 @@ const Transactions = () => {
                             {analysisLoading ? (
                                 <>
                                     <Spinner size="sm" />
-                                    Analyzing
+                                    Analisando
                                 </>
                             ) : (
                                 <>
                                     <Sparkles size={14} />
-                                    Generate
+                                    Gerar
                                 </>
                             )}
                         </Button>
@@ -281,7 +281,7 @@ const Transactions = () => {
                         </div>
                         <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-2">
-                                <h3 className="font-semibold text-slate-900">AI Spending Insight</h3>
+                                <h3 className="font-semibold text-slate-900">Análise de gastos com IA</h3>
                                 {analysis.highlight && (
                                     <span className="inline-flex items-center bg-violet-50 text-violet-700 text-xs font-medium px-2.5 py-0.5 rounded-full">
                                         {analysis.highlight}
@@ -294,13 +294,13 @@ const Transactions = () => {
                                 disabled={analysisLoading}
                                 className="mt-3 text-xs font-medium text-violet-600 hover:text-violet-700 disabled:opacity-50"
                             >
-                                {analysisLoading ? 'Re-analyzing...' : 'Re-analyze'}
+                                {analysisLoading ? 'Reanalisando...' : 'Reanalisar'}
                             </button>
                         </div>
                         <button
                             onClick={() => setAnalysis(null)}
                             className="text-slate-400 hover:text-slate-600 shrink-0 p-1"
-                            title="Dismiss"
+                            title="Fechar"
                         >
                             <X size={16} />
                         </button>
@@ -315,7 +315,7 @@ const Transactions = () => {
                         <input
                             value={filters.search}
                             onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                            placeholder="Search description or notes..."
+                            placeholder="Buscar na descrição ou observações..."
                             className="w-full pl-10 pr-4 py-2 rounded-full border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
                         />
                     </div>
@@ -344,7 +344,7 @@ const Transactions = () => {
                         onChange={(e) => setFilters({ ...filters, categoryId: e.target.value })}
                         className="px-4 py-2 rounded-full border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-violet-500"
                     >
-                        <option value="">All categories</option>
+                        <option value="">Todas as categorias</option>
                         {categories.map((c) => (
                             <option key={c.id} value={c.id}>
                                 {c.name}
@@ -360,11 +360,11 @@ const Transactions = () => {
                 ) : transactions.length === 0 ? (
                     <EmptyState
                         icon={Wallet}
-                        title="No transactions"
-                        description="Try adjusting filters, or add a new transaction."
+                        title="Nenhuma transação"
+                        description="Ajuste os filtros ou adicione uma nova transação."
                         action={
                             <Button onClick={onCreate}>
-                                <Plus size={16} /> Add Transaction
+                                <Plus size={16} /> Nova transação
                             </Button>
                         }
                     />
@@ -373,11 +373,11 @@ const Transactions = () => {
                         <table className="w-full">
                             <thead>
                                 <tr className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100">
-                                    <th className="pb-4 pr-4">Category</th>
-                                    <th className="pb-4 pr-4">Description</th>
-                                    <th className="pb-4 pr-4">Date</th>
-                                    <th className="pb-4 pr-4">Type</th>
-                                    <th className="pb-4 pr-4 text-right">Amount</th>
+                                    <th className="pb-4 pr-4">Categoria</th>
+                                    <th className="pb-4 pr-4">Descrição</th>
+                                    <th className="pb-4 pr-4">Data</th>
+                                    <th className="pb-4 pr-4">Tipo</th>
+                                    <th className="pb-4 pr-4 text-right">Valor</th>
                                     <th className="pb-4"></th>
                                 </tr>
                             </thead>
@@ -386,7 +386,7 @@ const Transactions = () => {
                                     <tr key={t.id} className="hover:bg-slate-50/60 transition">
                                         <td className="py-4 pr-4">
                                             <CategoryBadge
-                                                name={t.category_name || 'Uncategorized'}
+                                                name={t.category_name || 'Sem categoria'}
                                                 icon={t.category_icon}
                                                 color={t.category_color}
                                                 size="sm"
@@ -400,7 +400,7 @@ const Transactions = () => {
                                         </td>
                                         <td className="py-4 pr-4">
                                             <StatusPill variant={t.type === 'income' ? 'income' : 'expense'}>
-                                                {t.type}
+                                                {t.type === 'income' ? 'Receita' : 'Despesa'}
                                             </StatusPill>
                                         </td>
                                         <td
@@ -435,11 +435,11 @@ const Transactions = () => {
                         {totalPages > 1 && (
                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-5 pt-5 border-t border-slate-100">
                                 <div className="text-xs text-slate-500">
-                                    Showing{' '}
+                                    Exibindo{' '}
                                     <span className="font-semibold text-slate-700">
                                         {startIdx + 1}–{Math.min(startIdx + PAGE_SIZE, transactions.length)}
                                     </span>{' '}
-                                    of{' '}
+                                    de{' '}
                                     <span className="font-semibold text-slate-700">{transactions.length}</span>
                                 </div>
                                 <div className="flex items-center gap-1">
@@ -486,7 +486,7 @@ const Transactions = () => {
             <Modal
                 open={modalOpen}
                 onClose={() => setModalOpen(false)}
-                title={editing ? 'Edit Transaction' : 'New Transaction'}
+                title={editing ? 'Editar transação' : 'Nova transação'}
             >
                 <TransactionForm
                     initial={editing}

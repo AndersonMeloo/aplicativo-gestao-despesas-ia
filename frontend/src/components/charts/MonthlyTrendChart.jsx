@@ -17,7 +17,7 @@ const MonthlyTrendChart = ({ data, currency }) => {
 
         return (
             <div className="flex items-center justify-center h-64 text-sm text-slate-400">
-                No data yet
+                Sem dados ainda
             </div>
         );
     }
@@ -70,18 +70,20 @@ const MonthlyTrendChart = ({ data, currency }) => {
                         wrapperStyle={{ fontSize: 12, paddingTop: 12 }}
                         iconType="circle"
                         payload={[
-                            { value: 'income', type: 'circle', color: '#7C3AED' },
-                            { value: 'expense', type: 'circle', color: '#EA580C' },
+                            { value: 'Receitas', type: 'circle', color: '#7C3AED' },
+                            { value: 'Despesas', type: 'circle', color: '#EA580C' },
                         ]}
                     />
                     <Bar
                         dataKey="income"
+                        name="Receitas"
                         fill="url(#incomeGradient)"
                         radius={[10, 10, 10, 10]}
                         background={{ fill: '#f1f5f9', radius: 10 }}
                     />
                     <Bar
                         dataKey="expense"
+                        name="Despesas"
                         fill="url(#expenseGradient)"
                         radius={[10, 10, 10, 10]}
                         background={{ fill: '#f1f5f9', radius: 10 }}

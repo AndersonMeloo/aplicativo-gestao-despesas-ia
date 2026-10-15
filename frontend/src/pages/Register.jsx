@@ -7,14 +7,14 @@ import Spinner from '../components/Spinner';
 import AuthHero from '../components/AuthHero';
 
 const CURRENCIES = [
-    { value: 'USD', label: 'USD - US Dollar' },
+    { value: 'USD', label: 'USD - Dólar americano' },
     { value: 'EUR', label: 'EUR - Euro' },
-    { value: 'GBP', label: 'GBP - British Pound' },
-    { value: 'INR', label: 'INR - Indian Rupee' },
-    { value: 'JPY', label: 'JPY - Japanese Yen' },
-    { value: 'CAD', label: 'CAD - Canadian Dollar' },
-    { value: 'AUD', label: 'AUD - Australian Dollar' },
-    { value: 'BRL', label: 'BRL - Brasil' },
+    { value: 'GBP', label: 'GBP - Libra esterlina' },
+    { value: 'INR', label: 'INR - Rupia indiana' },
+    { value: 'JPY', label: 'JPY - Iene japonês' },
+    { value: 'CAD', label: 'CAD - Dólar canadense' },
+    { value: 'AUD', label: 'AUD - Dólar australiano' },
+    { value: 'BRL', label: 'BRL - Real brasileiro' },
 ];
 
 const Register = () => {
@@ -25,7 +25,7 @@ const Register = () => {
         name: '',
         email: '',
         password: '',
-        currency: 'USD',
+        currency: 'BRL',
     });
 
     const [loading, setLoading] = useState(false);
@@ -37,10 +37,10 @@ const Register = () => {
 
         try {
             await register(form)
-            toast.success('Account created!')
+            toast.success('Conta criada!')
             navigate('/');
         } catch (err) {
-            toast.error(err.response?.data?.message || 'Registration failed');
+            toast.error(err.response?.data?.message || 'Falha no cadastro');
         } finally {
             setLoading(false);
         }
@@ -60,35 +60,35 @@ const Register = () => {
 
                 <div className="flex-1 flex items-center justify-center py-10">
                     <div className="w-full max-w-md">
-                        <h2 className="text-4xl font-bold text-slate-900 tracking-tight mb-2">Sign Up</h2>
-                        <p className="text-slate-500 mb-10">Create your account in seconds</p>
+                        <h2 className="text-4xl font-bold text-slate-900 tracking-tight mb-2">Criar conta</h2>
+                        <p className="text-slate-500 mb-10">Crie sua conta em segundos</p>
 
                         <form onSubmit={onSubmit} className="space-y-5">
                             <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700">Name</label>
+                                <label className="text-sm font-semibold text-slate-700">Nome</label>
                                 <input
                                     required
                                     value={form.name}
                                     onChange={(e) => setForm({ ...form, name: e.target.value })}
                                     className="w-full bg-slate-100/80 hover:bg-slate-100 focus:bg-white border-2 border-transparent focus:border-violet-500 rounded-2xl px-5 py-4 text-slate-900 text-sm focus:outline-none transition"
-                                    placeholder="Alex"
+                                    placeholder="Maria"
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700">Email</label>
+                                <label className="text-sm font-semibold text-slate-700">E-mail</label>
                                 <input
                                     type="email"
                                     required
                                     value={form.email}
                                     onChange={(e) => setForm({ ...form, email: e.target.value })}
                                     className="w-full bg-slate-100/80 hover:bg-slate-100 focus:bg-white border-2 border-transparent focus:border-violet-500 rounded-2xl px-5 py-4 text-slate-900 text-sm focus:outline-none transition"
-                                    placeholder="you@example.com"
+                                    placeholder="voce@exemplo.com"
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700">Password</label>
+                                <label className="text-sm font-semibold text-slate-700">Senha</label>
                                 <div className="relative">
                                     <input
                                         type={showPassword ? 'text' : 'password'}
@@ -97,7 +97,7 @@ const Register = () => {
                                         value={form.password}
                                         onChange={(e) => setForm({ ...form, password: e.target.value })}
                                         className="w-full bg-slate-100/80 hover:bg-slate-100 focus:bg-white border-2 border-transparent focus:border-violet-500 rounded-2xl px-5 py-4 pr-12 text-slate-900 text-sm focus:outline-none transition"
-                                        placeholder="At least 6 characters"
+                                        placeholder="Pelo menos 6 caracteres"
                                     />
                                     <button
                                         type="button"
@@ -111,7 +111,7 @@ const Register = () => {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700">Currency</label>
+                                <label className="text-sm font-semibold text-slate-700">Moeda</label>
                                 <div className="relative">
                                     <select
                                         value={form.currency}
@@ -139,32 +139,32 @@ const Register = () => {
                                 {loading ? (
                                     <>
                                         <Spinner size="sm" />
-                                        Creating account...
+                                        Criando conta...
                                     </>
                                 ) : (
-                                    'Create Account'
+                                    'Criar conta'
                                 )}
                             </button>
                         </form>
 
                         <p className="text-center mt-8 text-sm text-slate-500">
-                            Already have an account?{' '}
+                            Já tem uma conta?{' '}
                             <Link to="/login" className="text-violet-600 font-semibold hover:text-violet-700 transition">
-                                Sign in
+                                Entrar
                             </Link>
                         </p>
                     </div>
                 </div>
 
                 <div className="flex justify-start gap-6 text-xs text-slate-500">
-                    <a className="hover:text-slate-900 transition cursor-pointer">Privacy Policy</a>
-                    <a className="hover:text-slate-900 transition cursor-pointer">Terms</a>
+                    <a className="hover:text-slate-900 transition cursor-pointer">Política de privacidade</a>
+                    <a className="hover:text-slate-900 transition cursor-pointer">Termos</a>
                     <a className="hover:text-slate-900 transition cursor-pointer">FAQ</a>
                 </div>
             </div>
 
             <div className="hidden lg:flex lg:w-1/2 xl:w-[55%] order-2">
-                <AuthHero headline="Begin" subheadline="your financial journey" />
+                <AuthHero headline="Comece" subheadline="sua jornada financeira" />
             </div>
         </div>
     )

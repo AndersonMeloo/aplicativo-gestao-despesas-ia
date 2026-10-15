@@ -19,10 +19,10 @@ const Login = () => {
         setLoading(true);
         try {
             await login(form.email, form.password);
-            toast.success('Welcome back!');
+            toast.success('Bem-vindo de volta!');
             navigate('/');
         } catch (err) {
-            toast.error(err.response?.data?.message || 'Login failed');
+            toast.error(err.response?.data?.message || 'Falha no login');
         } finally {
             setLoading(false);
         }
@@ -43,24 +43,24 @@ const Login = () => {
 
                 <div className="flex-1 flex items-center justify-center py-10">
                     <div className="w-full max-w-md">
-                        <h2 className="text-4xl font-bold text-slate-900 tracking-tight mb-2">Sign In</h2>
-                        <p className="text-slate-500 mb-10">Please login to continue</p>
+                        <h2 className="text-4xl font-bold text-slate-900 tracking-tight mb-2">Entrar</h2>
+                        <p className="text-slate-500 mb-10">Faça login para continuar</p>
 
                         <form onSubmit={onSubmit} className="space-y-5">
                             <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700">Email</label>
+                                <label className="text-sm font-semibold text-slate-700">E-mail</label>
                                 <input
                                     type="email"
                                     required
                                     value={form.email}
                                     onChange={(e) => setForm({ ...form, email: e.target.value })}
                                     className="w-full bg-slate-100/80 hover:bg-slate-100 focus:bg-white border-2 border-transparent focus:border-violet-500 rounded-2xl px-5 py-4 text-slate-900 text-sm focus:outline-none transition"
-                                    placeholder="you@example.com"
+                                    placeholder="voce@exemplo.com"
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700">Password</label>
+                                <label className="text-sm font-semibold text-slate-700">Senha</label>
                                 <div className="relative">
                                     <input
                                         type={showPassword ? 'text' : 'password'}
@@ -89,33 +89,33 @@ const Login = () => {
                                 {loading ? (
                                     <>
                                         <Spinner size="sm" />
-                                        Signing in...
+                                        Entrando...
                                     </>
                                 ) : (
-                                    'Login'
+                                    'Entrar'
                                 )}
                             </button>
                         </form>
 
                         <p className="text-center mt-8 text-sm text-slate-500">
-                            No Account Yet?{' '}
+                            Ainda não tem conta?{' '}
                             <Link to="/register" className="text-violet-600 font-semibold hover:text-violet-700 transition">
-                                Get Yours Now
+                                Crie a sua agora
                             </Link>
                         </p>
                     </div>
                 </div>
 
                 <div className="flex justify-start gap-6 text-xs text-slate-500">
-                    <a className="hover:text-slate-900 transition cursor-pointer">Privacy Policy</a>
-                    <a className="hover:text-slate-900 transition cursor-pointer">Terms</a>
+                    <a className="hover:text-slate-900 transition cursor-pointer">Política de privacidade</a>
+                    <a className="hover:text-slate-900 transition cursor-pointer">Termos</a>
                     <a className="hover:text-slate-900 transition cursor-pointer">FAQ</a>
                 </div>
 
             </div>
 
             <div className="hidden lg:flex lg:w-1/2 xl:w-[55%] order-2">
-                <AuthHero headline="Empower" subheadline="Your financial future" />
+                <AuthHero headline="Controle" subheadline="o seu futuro financeiro" />
             </div>
             
         </div>

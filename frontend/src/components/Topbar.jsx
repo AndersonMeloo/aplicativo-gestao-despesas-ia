@@ -3,13 +3,13 @@ import { useAuth } from '../context/AuthContext.jsx';
 
 const greeting = () => {
     const h = new Date().getHours();
-    if (h < 12) return 'Good morning';
-    if (h < 18) return 'Good afternoon';
-    return 'Good evening';
+    if (h < 12) return 'Bom dia';
+    if (h < 18) return 'Boa tarde';
+    return 'Boa noite';
 };
 
 const formatToday = () =>
-    new Date().toLocaleDateString('en-US', {
+    new Date().toLocaleDateString('pt-BR', {
         weekday: 'long',
         month: 'long',
         day: 'numeric',
@@ -30,13 +30,13 @@ const Topbar = () => {
 
             <div className="flex items-center gap-1">
                 <button
-                    title="Search"
+                    title="Buscar"
                     className="h-9 w-9 rounded-full text-slate-500 hover:bg-slate-100 hover:text-slate-900 flex items-center justify-center transition"
                 >
                     <Search size={17} />
                 </button>
                 <button
-                    title="Notifications"
+                    title="Notificações"
                     className="relative h-9 w-9 rounded-full text-slate-500 hover:bg-slate-100 hover:text-slate-900 flex items-center justify-center transition"
                 >
                     <Bell size={17} />

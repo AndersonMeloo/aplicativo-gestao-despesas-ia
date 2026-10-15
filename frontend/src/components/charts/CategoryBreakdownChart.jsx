@@ -16,7 +16,7 @@ const CategoryBreakdownChat = ({ data, currency }) => {
 
         return (
             <div className="flex items-center justify-center h-64 text-sm text-slate-400">
-                No expenses yet
+                Nenhuma despesa ainda
             </div>
         )
     }

@@ -11,7 +11,8 @@ import {
 import toast from 'react-hot-toast';
 import api from '../libs/axios.js';
 import { API_PATHS } from '../utils/apiPaths.js';
-import { timeAgo } from '../utils/format.js';
+import { formatCurrency, timeAgo } from '../utils/format.js';
+import { useAuth } from '../context/AuthContext.jsx';
 import EmptyState from '../components/EmptyState.jsx';
 import Spinner from '../components/Spinner.jsx';
 import InsightCard from '../components/InsightCard.jsx';
@@ -41,11 +42,11 @@ const ActionCard = ({ title, description,  icon: Icon, accentGradient, accentTex
 
         <div className="flex items-center justify-between">
             <span className={`inline-flex items-center gap-1.5 text-sm font-semibold ${accentText}`}>
-                {generating ? 'Analyzing...' : 'Generate Insight'}
+                {generating ? 'Analisando...' : 'Gerar insight'}
                 {!generating && <ArrowRight size={14} className="group-hover:translate-x-0.5 transition" />}
             </span>
             {lastGenerated && (
-                <span className="text-xs text-slate-400">Last: {timeAgo(lastGenerated)}</span>
+                <span className="text-xs text-slate-400">Última: {timeAgo(lastGenerated)}</span>
             )}
         </div>
 
@@ -54,6 +55,8 @@ const ActionCard = ({ title, description,  icon: Icon, accentGradient, accentTex
 
 const Insights = () => {
 
+    const { user } = useAuth();
+    const currency = user?.currency || 'BRL';
     const [insights, setInsights] = useState([]);
     const [loading, setLoading] = useState(true);
     const [generating, setGenerating] = useState(null);
@@ -64,7 +67,7 @@ const Insights = () => {
             const res = await api.get(API_PATHS.INSIGHTS.LIST);
             setInsights(res.data);
         } catch (err) {
-            toast.error('Failed to load insights', err);
+            toast.error('Falha ao carregar insights', err);
         } finally {
             setLoading(false);
         }
@@ -81,10 +84,10 @@ const Insights = () => {
         setGenerating(type);
         try {
             await api.post(API_PATHS.INSIGHTS.GENERATE, { type });
-            toast.success('Insight generated');
+            toast.success('Insight gerado');
             fetchInsights();
         } catch (err) {
-            toast.error(err.response?.data?.message || 'Failed to generate');
+            toast.error(err.response?.data?.message || 'Falha ao gerar');
         } finally {
             setGenerating(null);
         }
@@ -124,33 +127,33 @@ const Insights = () => {
         <div className="space-y-6">
 
             <div>
-                <h1 className="text-3xl font-bold text-slate-900 tracking-tight">AI Insights</h1>
+                <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Insights com IA</h1>
                 <p className="text-sm text-slate-500 mt-1.5">
-                    Personalized financial analysis powered by Gemini — generate insights and watch your money smarter
+                    Análises financeiras personalizadas com o Gemini — gere insights e cuide melhor do seu dinheiro
                 </p>
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <KpiCard
-                    label="Insights generated"
+                    label="Insights gerados"
                     value={stats.total}
                     icon={Sparkles}
                     accent="violet"
                 />
                 <KpiCard
-                    label="Health score"
+                    label="Saúde financeira"
                     value={stats.healthScore != null ? `${stats.healthScore}/100` : '—'}
                     icon={Activity}
                     accent={healthAccent}
                 />
                 <KpiCard
-                    label="Potential savings"
-                    value={stats.potentialSavings > 0 ? `$${stats.potentialSavings.toFixed(0)}/mo` : '—'}
+                    label="Economia potencial/mês"
+                    value={stats.potentialSavings > 0 ? formatCurrency(stats.potentialSavings, currency) : '—'}
                     icon={Wallet}
                     accent="orange"
                 />
                 <KpiCard
-                    label="Last analysis"
+                    label="Última análise"
                     value={stats.lastAt ? timeAgo(stats.lastAt) : '—'}
                     icon={Clock}
                     accent="blue"
@@ -159,8 +162,8 @@ const Insights = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <ActionCard
-                    title="Monthly Summary"
-                    description="A full breakdown of this month's income, expenses, and a personalized health score with actionable recommendations."
+                    title="Resumo mensal"
+                    description="Um resumo completo das receitas e despesas do mês, com nota de saúde financeira e recomendações práticas."
                     icon={TrendingUp}
                     accentGradient="from-violet-400 to-violet-600"
                     accentText="text-violet-600"
@@ -169,8 +172,8 @@ const Insights = () => {
                     lastGenerated={stats.latestMonthlyAt}
                 />
                 <ActionCard
-                    title="Savings Tips"
-                    description="Tailored, ranked ways to save money based on your top spending categories from the last 30 days."
+                    title="Dicas de economia"
+                    description="Formas personalizadas de economizar, com base nas categorias em que você mais gastou nos últimos 30 dias."
                     icon={Lightbulb}
                     accentGradient="from-blue-400 to-blue-600"
                     accentText="text-blue-600"
@@ -182,10 +185,10 @@ const Insights = () => {
 
             <div>
                 <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-bold text-slate-900 tracking-tight">Recent Analyses</h2>
+                    <h2 className="text-lg font-bold text-slate-900 tracking-tight">Análises recentes</h2>
                     {!loading && insights.length > 0 && (
                         <span className="text-xs text-slate-500">
-                            {insights.length} {insights.length === 1 ? 'analysis' : 'analyses'}
+                            {insights.length} {insights.length === 1 ? 'análise' : 'análises'}
                         </span>
                     )}
                 </div>
@@ -198,8 +201,8 @@ const Insights = () => {
                     <div className="bg-white rounded-3xl border border-slate-100">
                         <EmptyState
                             icon={Sparkles}
-                            title="No insights yet"
-                            description="Generate your first AI analysis using one of the cards above."
+                            title="Nenhum insight ainda"
+                            description="Gere sua primeira análise com IA usando um dos cards acima."
                         />
                     </div>
                 ) : (

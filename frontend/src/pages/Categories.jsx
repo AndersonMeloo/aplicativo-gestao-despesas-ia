@@ -46,11 +46,11 @@ const Categories = () => {
     }
 
     const onDelete = async (id) => {
-        if (!confirm('Delete this category? Transactions in this category will become uncategorized.')) return;
+        if (!confirm('Excluir esta categoria? As transações dela ficarão sem categoria.')) return;
 
         try {
             await api.delete(API_PATHS.CATEGORIES.DELETE(id));
-            toast.success('Category deleted');
+            toast.success('Categoria excluída');
             fetchCategories();
         } catch (err) {
             toast.error(err.response?.data?.message || err.message);
@@ -71,11 +71,11 @@ const Categories = () => {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Categories</h1>
-                    <p className="text-sm text-slate-500 mt-1.5">Organize transactions by category</p>
+                    <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Categorias</h1>
+                    <p className="text-sm text-slate-500 mt-1.5">Organize suas transações por categoria</p>
                 </div>
                 <Button onClick={onCreate}>
-                    <Plus size={16} /> Add Category
+                    <Plus size={16} /> Nova categoria
                 </Button>
             </div>
 
@@ -86,14 +86,14 @@ const Categories = () => {
             ) : categories.length === 0 ? (
                 <EmptyState
                     icon={Folder}
-                    title="No categories"
-                    description="Add a category to start organizing your transactions."
+                    title="Nenhuma categoria"
+                    description="Adicione uma categoria para organizar suas transações."
                 />
             ) : (
                 <>
                     {[
-                        { label: 'Income', items: income },
-                        { label: 'Expense', items: expense },
+                        { label: 'Receitas', items: income },
+                        { label: 'Despesas', items: expense },
                     ].map((group) => (
                         <div key={group.label}>
                             <h2 className="font-semibold text-slate-900 mb-3">
@@ -107,7 +107,7 @@ const Categories = () => {
                                     >
                                         <CategoryBadge name={c.name} icon={c.icon} color={c.color} />
                                         <div className="flex items-center gap-1.5">
-                                            {c.is_default && <StatusPill variant="neutral">default</StatusPill>}
+                                            {c.is_default && <StatusPill variant="neutral">padrão</StatusPill>}
                                             <button
                                                 onClick={() => onEdit(c)}
                                                 className="p-1.5 hover:bg-slate-100 rounded-md text-slate-500 transition"
@@ -132,7 +132,7 @@ const Categories = () => {
             <Modal
                 open={modalOpen}
                 onClose={() => setModalOpen(false)}
-                title={editing ? 'Edit Category' : 'New Category'}
+                title={editing ? 'Editar categoria' : 'Nova categoria'}
             >
                 <CategoryForm initial={editing} onSaved={onSaved} onCancel={() => setModalOpen(false)} />
             </Modal>

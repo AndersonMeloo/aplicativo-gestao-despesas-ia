@@ -42,15 +42,15 @@ const TransctionForm = ({ initial, categories, onSaved, onCancel }) => {
             if (initial) {
 
                 await api.put(API_PATHS.TRANSACTIONS.UPDATE(initial.id), payload)
-                toast.success('Transaction updated');
+                toast.success('Transação atualizada');
             } else {
                 await api.post(API_PATHS.TRANSACTIONS.CREATE, payload)
-                toast.success('Transaction created');
+                toast.success('Transação criada');
             }
 
             onSaved()
         } catch (err) {
-            toast.error(err.response?.data?.message || 'Failed to save');
+            toast.error(err.response?.data?.message || 'Falha ao salvar');
         } finally {
             setSaving(false);
         }
@@ -69,7 +69,7 @@ const TransctionForm = ({ initial, categories, onSaved, onCancel }) => {
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                         }`}
                 >
-                    Expense
+                    Despesa
                 </button>
                 <button
                     type="button"
@@ -79,12 +79,12 @@ const TransctionForm = ({ initial, categories, onSaved, onCancel }) => {
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                         }`}
                 >
-                    Income
+                    Receita
                 </button>
             </div>
 
             <Input
-                label="Amount"
+                label="Valor"
                 type="number"
                 step="0.01"
                 min="0.01"
@@ -94,11 +94,11 @@ const TransctionForm = ({ initial, categories, onSaved, onCancel }) => {
             />
 
             <Select
-                label="Category"
+                label="Categoria"
                 value={form.categoryId}
                 onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
             >
-                <option value="">Uncategorized</option>
+                <option value="">Sem categoria</option>
                 {filteredCategories.map((c) => (
                     <option key={c.id} value={c.id}>
                         {c.name}
@@ -107,14 +107,14 @@ const TransctionForm = ({ initial, categories, onSaved, onCancel }) => {
             </Select>
 
             <Input
-                label="Description"
-                placeholder="e.g. Coffee at Starbucks"
+                label="Descrição"
+                placeholder="ex.: Almoço no restaurante"
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
             />
 
             <Input
-                label="Date"
+                label="Data"
                 type="date"
                 required
                 value={form.transactionDate}
@@ -122,7 +122,7 @@ const TransctionForm = ({ initial, categories, onSaved, onCancel }) => {
             />
 
             <Textarea
-                label="Notes (optional)"
+                label="Observações (opcional)"
                 rows={3}
                 value={form.notes}
                 onChange={(e) => setForm({ ...form, notes: e.target.value })}
@@ -130,10 +130,10 @@ const TransctionForm = ({ initial, categories, onSaved, onCancel }) => {
 
             <div className="flex gap-2 justify-end pt-2">
                 <Button type="button" variant="outline" onClick={onCancel}>
-                    Cancel
+                    Cancelar
                 </Button>
                 <Button type="submit" disabled={saving}>
-                    {saving ? 'Saving...' : 'Save'}
+                    {saving ? 'Salvando...' : 'Salvar'}
                 </Button>
             </div>
         </form>

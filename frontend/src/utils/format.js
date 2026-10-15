@@ -47,6 +47,6 @@ export const timeAgo = (date) => {
     const hours = Math.floor(minutes / 60);
     if (hours < 24) return `há ${hours} h`;
     const days = Math.floor(hours / 24);
-    if (days < 30) return `há ${days} dias`;
+    if (days < 30) return days === 1 ? 'há 1 dia' : `há ${days} dias`;
     return formatDate(date);
 };

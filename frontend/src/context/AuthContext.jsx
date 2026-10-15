@@ -13,17 +13,13 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
 
     // Controla o estado de carregamento da autenticação
-    const [loading, setLoading] = useState(null);
+    // Se houver token salvo, começa carregando para que o ProtectedRoute aguarde a verificação
+    const [loading, setLoading] = useState(() => Boolean(localStorage.getItem('token')));
 
     // Verifica se existe um token salvo ao carregar a aplicação
     useEffect(() => {
-        const token = localStorage.getItem('token');
-
-        // Caso não exista token, encerra o carregamento
-        if (!token) {
-            setLoading(false);
-            return;
-        }
+        // Caso não exista token, não há o que verificar
+        if (!localStorage.getItem('token')) return;
 
         // Busca os dados do usuário autenticado
         api.get(API_PATHS.AUTH.ME)

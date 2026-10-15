@@ -15,29 +15,28 @@ import BudgetForm from '../components/BudgetForm.jsx';
 const statusStyles = {
     good: {
         Icon: CheckCircle2,
-        label: 'On Track',
+        label: 'Dentro do limite',
         bg: 'bg-emerald-50',
         text: 'text-emerald-700',
         iconColor: 'text-emerald-600',
     },
     caution: {
         Icon: AlertTriangle,
-        label: 'Watch It',
+        label: 'Atenção',
         bg: 'bg-amber-50',
         text: 'text-amber-700',
         iconColor: 'text-amber-600',
     },
     concerning: {
         Icon: AlertOctagon,
-        label: 'Over Budget',
+        label: 'Estourado',
         bg: 'bg-rose-50',
         text: 'text-rose-700',
         iconColor: 'text-rose-600',
     },
 }
 
-const AnalysisSkeleton = () => {
-
+const AnalysisSkeleton = () => (
     <div className="mt-4 pt-4 border-t border-slate-100 animate-pulse">
         <div className="flex items-start gap-2.5">
             <div className="shrink-0 h-6 w-6 rounded-full bg-slate-200" />
@@ -48,12 +47,12 @@ const AnalysisSkeleton = () => {
             </div>
         </div>
     </div>
-}
+);
 
 const Budgets = () => {
 
     const { user } = useAuth();
-    const currency = user?.currency || 'USD';
+    const currency = user?.currency || 'BRL';
     const [budgets, setBudgets] = useState([]);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -73,7 +72,7 @@ const Budgets = () => {
             setBudgets(bRes.data);
             setCategories(cRes.data);
         } catch (err) {
-            toast.error('Failed to load budgets', err)
+            toast.error('Falha ao carregar orçamentos', err)
         } finally {
             setLoading(false);
         }
@@ -124,14 +123,14 @@ const Budgets = () => {
 
     const onDelete = async (id) => {
 
-        if (!confirm('Delete this budget?')) return;
+        if (!confirm('Excluir este orçamento?')) return;
 
         try {
             await api.delete(API_PATHS.BUDGETS.DELETE(id));
-            toast.success('Budget deleted');
+            toast.success('Orçamento excluído');
             fetchData();
         } catch (err) {
-            toast.error('Failed to delete budget', err);
+            toast.error('Falha ao excluir orçamento', err);
         }
     }
 
@@ -149,9 +148,9 @@ const Budgets = () => {
 
             <div className="flex items-center justify-between gap-3">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Budgets</h1>
+                    <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Orçamentos</h1>
                     <p className="text-sm text-slate-500 mt-1.5">
-                        Set spending limits per category — AI scores each one automatically
+                        Defina limites de gastos por categoria — a IA avalia cada um automaticamente
                     </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -161,10 +160,10 @@ const Budgets = () => {
                         className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border border-violet-200 bg-violet-50 text-violet-700 hover:bg-violet-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
                     >
                         {analyzing ? <Spinner size="sm" /> : <Sparkles size={14} />}
-                        {analyzing ? 'Analyzing' : hasAnalyses ? 'Re-analyze' : 'Analyze'}
+                        {analyzing ? 'Analisando' : hasAnalyses ? 'Reanalisar' : 'Analisar'}
                     </button>
                     <Button onClick={onCreate}>
-                        <Plus size={16} /> Add Budget
+                        <Plus size={16} /> Novo orçamento
                     </Button>
                 </div>
             </div>
@@ -176,8 +175,8 @@ const Budgets = () => {
             ) : budgets.length === 0 ? (
                 <EmptyState
                     icon={Target}
-                    title="No budgets yet"
-                    description="Create a budget to track spending limits."
+                    title="Nenhum orçamento ainda"
+                    description="Crie um orçamento para acompanhar seus limites de gastos."
                 />
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -222,7 +221,7 @@ const Budgets = () => {
                                         {formatCurrency(spent, currency)}
                                     </span>
                                     <span className="text-sm text-slate-500">
-                                        of {formatCurrency(total, currency)}
+                                        de {formatCurrency(total, currency)}
                                     </span>
                                 </div>
                                 <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
@@ -232,11 +231,11 @@ const Budgets = () => {
                                     />
                                 </div>
                                 <div className="mt-2.5 flex items-center justify-between text-xs">
-                                    <span className="text-slate-500 capitalize">{b.period} · {pct.toFixed(0)}% used</span>
+                                    <span className="text-slate-500">{b.period === 'weekly' ? 'Semanal' : 'Mensal'} · {pct.toFixed(0)}% usado</span>
                                     <span className={over ? 'text-rose-600 font-medium' : 'text-slate-500'}>
                                         {over
-                                            ? `Over by ${formatCurrency(spent - total, currency)}`
-                                            : `${formatCurrency(total - spent, currency)} left`}
+                                            ? `Estourou ${formatCurrency(spent - total, currency)}`
+                                            : `Restam ${formatCurrency(total - spent, currency)}`}
                                     </span>
                                 </div>
 
@@ -266,7 +265,7 @@ const Budgets = () => {
             <Modal
                 open={modalOpen}
                 onClose={() => setModalOpen(false)}
-                title={editing ? 'Edit Budget' : 'New Budget'}
+                title={editing ? 'Editar orçamento' : 'Novo orçamento'}
             >
                 <BudgetForm
                     initial={editing}

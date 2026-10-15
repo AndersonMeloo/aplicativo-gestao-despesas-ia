@@ -14,7 +14,7 @@ import api from '../libs/axios.js';
 const Dashboard = () => {
 
     const { user } = useAuth();
-    const currency = user?.currency || 'USD';
+    const currency = user?.currency || 'BRL';
     const [summary, setSummary] = useState(null);
     const [trend, setTrend] = useState([]);
     const [breakdown, setBreakdown] = useState([]);
@@ -70,33 +70,33 @@ const Dashboard = () => {
 
             <div>
                 <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Dashboard</h1>
-                <p className="text-sm text-slate-500 mt-1.5">An overview of your finances this month</p>
+                <p className="text-sm text-slate-500 mt-1.5">Visão geral das suas finanças neste mês</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <KpiCard
-                    label="Balance"
+                    label="Saldo"
                     value={formatCurrency(summary.balance, currency)}
                     icon={Wallet}
                     accent="violet"
                 />
                 <KpiCard
-                    label="Income"
+                    label="Receitas"
                     value={formatCurrency(summary.incomeThisMonth, currency)}
                     delta={summary.incomeDelta}
                     icon={TrendingUp}
                     accent="orange"
                 />
                 <KpiCard
-                    label="Expenses"
+                    label="Despesas"
                     value={formatCurrency(summary.expenseThisMonth, currency)}
                     delta={summary.expenseDelta}
                     icon={TrendingDown}
                     accent="rose"
                 />
                 <KpiCard
-                    label="Savings Rate"
-                    value={`${summary.savingsRate.toFixed(1)}%`}
+                    label="Taxa de poupança"
+                    value={`${summary.savingsRate.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`}
                     icon={PiggyBank}
                     accent="blue"
                 />
@@ -105,15 +105,15 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 bg-white rounded-3xl border border-slate-100 p-6">
                     <div className="mb-5">
-                        <h2 className="text-lg font-bold text-slate-900 tracking-tight">Monthly Trend</h2>
-                        <p className="text-xs text-slate-500 mt-1">Income vs expenses, last 6 months</p>
+                        <h2 className="text-lg font-bold text-slate-900 tracking-tight">Tendência mensal</h2>
+                        <p className="text-xs text-slate-500 mt-1">Receitas x despesas nos últimos 6 meses</p>
                     </div>
                     <MonthlyTrendChart data={trend} currency={currency} />
                 </div>
                 <div className="bg-white rounded-3xl border border-slate-100 p-6">
                     <div className="mb-5">
-                        <h2 className="text-lg font-bold text-slate-900 tracking-tight">Top Categories</h2>
-                        <p className="text-xs text-slate-500 mt-1">Spending this month</p>
+                        <h2 className="text-lg font-bold text-slate-900 tracking-tight">Principais categorias</h2>
+                        <p className="text-xs text-slate-500 mt-1">Gastos deste mês</p>
                     </div>
                     <CategoryBreakdownChart data={breakdown} currency={currency} />
                 </div>
@@ -122,17 +122,17 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-100 p-6">
                     <div className="mb-5 flex items-center justify-between">
-                        <h2 className="text-lg font-bold text-slate-900 tracking-tight">Recent Transactions</h2>
+                        <h2 className="text-lg font-bold text-slate-900 tracking-tight">Transações recentes</h2>
                         <Link
                             to="/transactions"
                             className="inline-flex items-center gap-1 text-sm font-medium text-violet-600 hover:text-violet-700 transition"
                         >
-                            View all
+                            Ver tudo
                             <ArrowRight size={14} />
                         </Link>
                     </div>
                     {recent.length === 0 ? (
-                        <p className="text-sm text-slate-500 py-6 text-center">No transactions yet.</p>
+                        <p className="text-sm text-slate-500 py-6 text-center">Nenhuma transação ainda.</p>
                     ) : (
                         <div className="space-y-1">
                             {recent.map((t) => (
@@ -144,10 +144,10 @@ const Dashboard = () => {
                                         <CategoryBadge icon={t.category_icon} color={t.category_color} size="sm" />
                                         <div className="min-w-0">
                                             <div className="text-sm font-medium text-slate-900 truncate">
-                                                {t.description || t.category_name || 'Untitled'}
+                                                {t.description || t.category_name || 'Sem descrição'}
                                             </div>
                                             <div className="text-xs text-slate-500">
-                                                {t.category_name || 'Uncategorized'} · {formatDate(t.transaction_date)}
+                                                {t.category_name || 'Sem categoria'} · {formatDate(t.transaction_date)}
                                             </div>
                                         </div>
                                     </div>
@@ -164,12 +164,12 @@ const Dashboard = () => {
 
                 <div className="lg:col-span-5 bg-white rounded-3xl border border-slate-100 p-6">
                     <div className="mb-5 flex items-center justify-between">
-                        <h2 className="text-lg font-bold text-slate-900 tracking-tight">Budget Status</h2>
+                        <h2 className="text-lg font-bold text-slate-900 tracking-tight">Situação dos orçamentos</h2>
                         <Link
                             to="/budgets"
                             className="inline-flex items-center gap-1 text-sm font-medium text-violet-600 hover:text-violet-700 transition"
                         >
-                            View all
+                            Ver tudo
                             <ArrowRight size={14} />
                         </Link>
                     </div>
@@ -179,9 +179,9 @@ const Dashboard = () => {
                             <div className="h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center mb-3">
                                 <Target size={20} className="text-slate-400" />
                             </div>
-                            <p className="text-sm font-semibold text-slate-900 mb-1">No budgets yet</p>
+                            <p className="text-sm font-semibold text-slate-900 mb-1">Nenhum orçamento ainda</p>
                             <Link to="/budgets" className="text-xs text-violet-600 font-medium hover:text-violet-700">
-                                Create one →
+                                Criar um →
                             </Link>
                         </div>
                     ) : (
@@ -193,14 +193,14 @@ const Dashboard = () => {
                                             {formatCurrency(totalSpent, currency)}
                                         </div>
                                         <div className="text-xs text-slate-500 mt-0.5">
-                                            of {formatCurrency(totalBudget, currency)} total
+                                            de {formatCurrency(totalBudget, currency)} no total
                                         </div>
                                     </div>
                                     <div className="text-right">
                                         <div className="text-sm font-bold" style={{ color: aggColor }}>
                                             {aggPct.toFixed(0)}%
                                         </div>
-                                        <div className="text-[10px] text-slate-500">used</div>
+                                        <div className="text-[10px] text-slate-500">usado</div>
                                     </div>
                                 </div>
                                 <div className="h-2 bg-slate-100 rounded-full overflow-hidden">

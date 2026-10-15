@@ -10,12 +10,19 @@ import {
     Sparkles,
     ArrowRight,
 } from 'lucide-react';
-import { timeAgo } from '../utils/format.js';
+import { formatCurrency, timeAgo } from '../utils/format.js';
+import { useAuth } from '../context/AuthContext.jsx';
 
 const labelMap = {
-    monthly_summary: 'Monthly Summary',
-    budget_alert: 'Budget Alert',
-    savings_tips: 'Savings Tips',
+    monthly_summary: 'Resumo mensal',
+    budget_alert: 'Alerta de orçamento',
+    savings_tips: 'Dicas de economia',
+};
+
+const severityLabel = {
+    info: 'informativo',
+    warning: 'atenção',
+    critical: 'crítico',
 };
 
 const typeStyles = {
@@ -30,7 +37,7 @@ const HealthScoreGauge = ({ score = 0 }) => {
     const circumference = 2 * Math.PI * radius;
     const offset = circumference - (safe / 100) * circumference;
     const color = safe >= 70 ? '#10B981' : safe >= 40 ? '#F59E0B' : '#F43F5E';
-    const label = safe >= 70 ? 'Healthy' : safe >= 40 ? 'Watch' : 'Risky';
+    const label = safe >= 70 ? 'Saudável' : safe >= 40 ? 'Atenção' : 'Risco';
 
     return (
         <div className="relative h-36 w-36 shrink-0">
@@ -75,18 +82,18 @@ const Stat = ({ label, value, accent = 'slate' }) => {
     );
 };
 
-const MonthlySummaryView = ({ c }) => (
+const MonthlySummaryView = ({ c, currency }) => (
     <div className="space-y-6">
         <div className="flex flex-col md:flex-row gap-6 items-center bg-linear-to-br from-violet-50 via-white to-blue-50 rounded-2xl p-6 border border-slate-100">
             <HealthScoreGauge score={c.healthScore} />
             <div className="flex-1 min-w-0">
                 <div className="text-[11px] uppercase tracking-wider font-semibold text-slate-500 mb-2">
-                    AI Summary
+                    Resumo da IA
                 </div>
                 <p className="text-slate-700 leading-relaxed">{c.summary}</p>
                 {c.topSpendingCategory && (
                     <div className="mt-3 inline-flex items-center gap-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 px-3 py-1.5 rounded-full">
-                        <span className="text-slate-400">Top category</span>
+                        <span className="text-slate-400">Maior gasto</span>
                         <span className="font-semibold text-slate-900">{c.topSpendingCategory}</span>
                     </div>
                 )}
@@ -95,14 +102,14 @@ const MonthlySummaryView = ({ c }) => (
 
         {typeof c.estimatedMonthlySavings === 'number' && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <Stat label="Health Score" value={`${c.healthScore ?? 0}/100`} accent="violet" />
+                <Stat label="Saúde financeira" value={`${c.healthScore ?? 0}/100`} accent="violet" />
                 <Stat
-                    label="Estimated Savings"
-                    value={`$${Number(c.estimatedMonthlySavings).toLocaleString()}/mo`}
+                    label="Economia estimada"
+                    value={`${formatCurrency(c.estimatedMonthlySavings, currency)}/mês`}
                     accent="emerald"
                 />
                 <Stat
-                    label="Recommendations"
+                    label="Recomendações"
                     value={c.recommendations?.length || 0}
                     accent="slate"
                 />
@@ -114,7 +121,7 @@ const MonthlySummaryView = ({ c }) => (
                 <div className="flex items-center gap-2 mb-3">
                     <Check size={14} className="text-emerald-600" />
                     <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                        What's going well
+                        O que está indo bem
                     </h4>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -138,7 +145,7 @@ const MonthlySummaryView = ({ c }) => (
                 <div className="flex items-center gap-2 mb-3">
                     <AlertCircle size={14} className="text-rose-600" />
                     <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                        Areas to watch
+                        Pontos de atenção
                     </h4>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -162,7 +169,7 @@ const MonthlySummaryView = ({ c }) => (
                 <div className="flex items-center gap-2 mb-3">
                     <Sparkles size={14} className="text-violet-600" />
                     <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                        Recommendations
+                        Recomendações
                     </h4>
                 </div>
                 <div className="space-y-2">
@@ -186,7 +193,7 @@ const MonthlySummaryView = ({ c }) => (
     </div>
 );
 
-const SavingsTipsView = ({ c }) => {
+const SavingsTipsView = ({ c, currency }) => {
     const totalSavings = (c.tips || []).reduce(
         (sum, t) => sum + (Number(t.estimatedSavings) || 0),
         0
@@ -203,7 +210,7 @@ const SavingsTipsView = ({ c }) => {
                         </div>
                         <div>
                             <div className="text-[11px] uppercase tracking-wider font-semibold text-white/70 mb-1">
-                                Top tip
+                                Dica principal
                             </div>
                             <p className="text-sm leading-relaxed font-medium">{c.overallTip}</p>
                         </div>
@@ -213,8 +220,8 @@ const SavingsTipsView = ({ c }) => {
 
             {totalSavings > 0 && (
                 <div className="grid grid-cols-2 gap-3">
-                    <Stat label="Total potential" value={`$${totalSavings.toFixed(0)}/mo`} accent="emerald" />
-                    <Stat label="Tips" value={c.tips?.length || 0} accent="violet" />
+                    <Stat label="Economia potencial" value={`${formatCurrency(totalSavings, currency)}/mês`} accent="emerald" />
+                    <Stat label="Dicas" value={c.tips?.length || 0} accent="violet" />
                 </div>
             )}
 
@@ -234,7 +241,7 @@ const SavingsTipsView = ({ c }) => {
                                 )}
                                 {savings > 0 && (
                                     <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">
-                                        <TrendingUp size={11} />~${savings}/mo
+                                        <TrendingUp size={11} />~{formatCurrency(savings, currency)}/mês
                                     </span>
                                 )}
                             </div>
@@ -266,7 +273,7 @@ const BudgetAlertView = ({ c }) => {
                     <div className="min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                             <span className={`text-[10px] uppercase tracking-wider font-bold ${sev.accent} bg-white/60 px-2 py-0.5 rounded-full`}>
-                                {severity}
+                                {severityLabel[severity]}
                             </span>
                         </div>
                         {c.title && <h4 className={`font-bold ${sev.text} text-base mb-1`}>{c.title}</h4>}
@@ -280,7 +287,7 @@ const BudgetAlertView = ({ c }) => {
                     <div className="flex items-center gap-2 mb-3">
                         <ArrowRight size={14} className="text-violet-600" />
                         <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                            Suggested actions
+                            Ações sugeridas
                         </h4>
                     </div>
                     <div className="space-y-2">
@@ -310,27 +317,29 @@ const previewText = (insight) => {
     return '';
 };
 
-const headerChip = (insight) => {
+const headerChip = (insight, currency) => {
     const c = insight.content_json;
     if (insight.insight_type === 'monthly_summary' && typeof c.healthScore === 'number') {
         const score = c.healthScore;
         const tone = score >= 70 ? 'bg-emerald-50 text-emerald-700' : score >= 40 ? 'bg-amber-50 text-amber-700' : 'bg-rose-50 text-rose-700';
-        return <span className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full ${tone}`}>Score {score}</span>;
+        return <span className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full ${tone}`}>Nota {score}</span>;
     }
     if (insight.insight_type === 'budget_alert' && c.severity) {
         const tone = c.severity === 'critical' ? 'bg-rose-50 text-rose-700' : c.severity === 'warning' ? 'bg-amber-50 text-amber-700' : 'bg-blue-50 text-blue-700';
-        return <span className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full ${tone}`}>{c.severity}</span>;
+        return <span className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full ${tone}`}>{severityLabel[c.severity]}</span>;
     }
     if (insight.insight_type === 'savings_tips') {
         const total = (c.tips || []).reduce((s, t) => s + (Number(t.estimatedSavings) || 0), 0);
         if (total > 0) {
-            return <span className="text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">~${total}/mo</span>;
+            return <span className="text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">~{formatCurrency(total, currency)}/mês</span>;
         }
     }
     return null;
 };
 
 const InsightCard = ({ insight, defaultExpanded = false }) => {
+    const { user } = useAuth();
+    const currency = user?.currency || 'BRL';
     const [expanded, setExpanded] = useState(defaultExpanded);
     const c = insight.content_json;
     const t = typeStyles[insight.insight_type] || typeStyles.monthly_summary;
@@ -348,7 +357,7 @@ const InsightCard = ({ insight, defaultExpanded = false }) => {
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                         <h3 className="font-bold text-slate-900">{labelMap[insight.insight_type]}</h3>
-                        {headerChip(insight)}
+                        {headerChip(insight, currency)}
                         <span className="text-xs text-slate-400">{timeAgo(insight.created_at)}</span>
                     </div>
                     <p className="text-sm text-slate-600 line-clamp-2 leading-relaxed">{previewText(insight)}</p>
@@ -361,9 +370,9 @@ const InsightCard = ({ insight, defaultExpanded = false }) => {
             </button>
             {expanded && (
                 <div className="px-5 pb-6 border-t border-slate-100 pt-5">
-                    {insight.insight_type === 'monthly_summary' && <MonthlySummaryView c={c} />}
+                    {insight.insight_type === 'monthly_summary' && <MonthlySummaryView c={c} currency={currency} />}
                     {insight.insight_type === 'budget_alert' && <BudgetAlertView c={c} />}
-                    {insight.insight_type === 'savings_tips' && <SavingsTipsView c={c} />}
+                    {insight.insight_type === 'savings_tips' && <SavingsTipsView c={c} currency={currency} />}
                 </div>
             )}
         </div>

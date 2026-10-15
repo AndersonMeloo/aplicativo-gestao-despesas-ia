@@ -23,18 +23,18 @@ const BudgetForm = ({ initial, categories, onSaved, onCancel }) => {
                     amount: parseFloat(form.amount),
                     period: form.period,
                 });
-                toast.sucess('Budget updated');
+                toast.success('Orçamento atualizado');
             } else {
                 await api.post(API_PATHS.BUDGETS.CREATE, {
                     categoryId: parseFloat(form.categoryId, 10),
                     amount: parseFloat(form.amount),
                     period: form.period,
                 });
-                toast.sucess('Budget created');
+                toast.success('Orçamento criado');
             }
             onSaved();
         } catch (err) {
-            toast.error(err.response?.data?.message || 'Failed to save');
+            toast.error(err.response?.data?.message || 'Falha ao salvar');
         } finally {
             setSaving(false);
         }
@@ -45,12 +45,12 @@ const BudgetForm = ({ initial, categories, onSaved, onCancel }) => {
         <form onSubmit={submit} className="space-y-4">
             {!initial && (
                 <Select
-                    label="Category"
+                    label="Categoria"
                     required
                     value={form.categoryId}
                     onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
                 >
-                    <option value="">Select a category</option>
+                    <option value="">Selecione uma categoria</option>
                     {categories.map((c) => (
                         <option key={c.id} value={c.id}>
                             {c.name}
@@ -60,7 +60,7 @@ const BudgetForm = ({ initial, categories, onSaved, onCancel }) => {
             )}
 
             <Input
-                label="Amount"
+                label="Valor"
                 type="number"
                 step="0.01"
                 min="0.01"
@@ -70,20 +70,20 @@ const BudgetForm = ({ initial, categories, onSaved, onCancel }) => {
             />
 
             <Select
-                label="Period"
+                label="Período"
                 value={form.period}
                 onChange={(e) => setForm({ ...form, period: e.target.value })}
             >
-                <option value="monthly">Monthly</option>
-                <option value="weekly">Weekly</option>
+                <option value="monthly">Mensal</option>
+                <option value="weekly">Semanal</option>
             </Select>
 
             <div className="flex gap-2 justify-end pt-2">
                 <Button type="button" variant="outline" onClick={onCancel}>
-                    Cancel
+                    Cancelar
                 </Button>
                 <Button type="submit" disabled={saving}>
-                    {saving ? 'Saving...' : 'Save'}
+                    {saving ? 'Salvando...' : 'Salvar'}
                 </Button>
             </div>
         </form>

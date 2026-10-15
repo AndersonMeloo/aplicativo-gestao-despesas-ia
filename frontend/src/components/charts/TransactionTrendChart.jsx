@@ -3,6 +3,7 @@ import {
     AreaChart,
     CartesianGrid,
     XAxis,
+    YAxis,
     Tooltip,
     Legend,
     Area,
@@ -13,7 +14,7 @@ const TransactionTrendChart = ({ data, currency, interval = 3 }) => {
     if (!data || data.length === 0) {
         return (
             <div className="flex items-center justify-center h-64 text-sm text-slate-400">
-                No data yet
+                Sem dados ainda
             </div>
         );
     }
@@ -40,7 +41,7 @@ const TransactionTrendChart = ({ data, currency, interval = 3 }) => {
                         axisLine={false}
                         interval={interval}
                     />
-                    <XAxis
+                    <YAxis
                         tick={{ fill: '#6b7280', fontSize: 11 }}
                         tickLine={false}
                         axisLine={false}
@@ -60,13 +61,14 @@ const TransactionTrendChart = ({ data, currency, interval = 3 }) => {
                         wrapperStyle={{ fontSize: 12, paddingTop: 12 }}
                         iconType="circle"
                         payload={[
-                            { value: 'income', type: 'circle', color: '#7C3AED' },
-                            { value: 'expense', type: 'circle', color: '#EA580C' },
+                            { value: 'Receitas', type: 'circle', color: '#7C3AED' },
+                            { value: 'Despesas', type: 'circle', color: '#EA580C' },
                         ]}
                     />
                     <Area
                         type="monotone"
                         dataKey="income"
+                        name="Receitas"
                         stroke="#7C3AED"
                         strokeWidth={2.5}
                         fill="url(#incomeArea)"
@@ -75,6 +77,7 @@ const TransactionTrendChart = ({ data, currency, interval = 3 }) => {
                     <Area
                         type="monotone"
                         dataKey="expense"
+                        name="Despesas"
                         stroke="#EA580C"
                         strokeWidth={2.5}
                         fill="url(#expenseArea)"

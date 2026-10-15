@@ -40,14 +40,14 @@ const CategoryForm = ({ initial, onSaved, onCancel }) => {
                     icon: form.icon,
                     color: form.color,
                 });
-                toast.success('Category updated');
+                toast.success('Categoria atualizada');
             } else {
                 await api.post(API_PATHS.CATEGORIES.CREATE, form);
-                toast.success('Category created')
+                toast.success('Categoria criada')
             }
             onSaved();
         } catch (err) {
-            toast.error(err.response?.data?.message || 'Failed to save');
+            toast.error(err.response?.data?.message || 'Falha ao salvar');
         } finally {
             setSaving(false);
         }
@@ -56,7 +56,7 @@ const CategoryForm = ({ initial, onSaved, onCancel }) => {
         <form onSubmit={submit} className="space-y-4">
 
             <Input
-                label="Name"
+                label="Nome"
                 required
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -64,17 +64,17 @@ const CategoryForm = ({ initial, onSaved, onCancel }) => {
 
             {!initial && (
                 <Select
-                    label="Type"
+                    label="Tipo"
                     value={form.type}
                     onChange={(e) => setForm({ ...form, type: e.target.value })}
                 >
-                    <option value="expense">Expense</option>
-                    <option value="income">Income</option>
+                    <option value="expense">Despesa</option>
+                    <option value="income">Receita</option>
                 </Select>
             )}
 
             <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Icon</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Ícone</label>
                 <div className="grid grid-cols-8 gap-2">
                     {ICONS.map((name) => {
                         const Icon = lucideIconByName(name);
@@ -98,7 +98,7 @@ const CategoryForm = ({ initial, onSaved, onCancel }) => {
             </div>
 
             <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Color</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Cor</label>
                 <div className="flex flex-wrap gap-2">
                     {COLORS.map((color) => (
                         <button
@@ -115,10 +115,10 @@ const CategoryForm = ({ initial, onSaved, onCancel }) => {
 
             <div className="flex gap-2 justify-end pt-2">
                 <Button type="button" variant="outline" onClick={onCancel}>
-                    Cancel
+                    Cancelar
                 </Button>
                 <Button type="submit" disabled={saving}>
-                    {saving ? 'Saving...' : 'Save'}
+                    {saving ? 'Salvando...' : 'Salvar'}
                 </Button>
             </div>
         </form>

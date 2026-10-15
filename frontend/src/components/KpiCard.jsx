@@ -18,11 +18,11 @@ const KpidCard = ({ label, value, delta, icon: Icon, accent = 'slate' }) => {
     return (
         <div className="bg-white rounded-3xl border border-slate-100 p-5 flex items-center gap-4">
             {Icon && (
-                <div className={`h-14 w-14 rounded-2xl fkex items-center justify-center shrink-0 bg-linear-to-br ${gradient}`}>
+                <div className={`h-14 w-14 rounded-2xl flex items-center justify-center shrink-0 bg-linear-to-br ${gradient}`}>
                     <Icon
                         size={26}
                         className="text-white"
-                        stroke={2}
+                        strokeWidth={2}
                     />
                 </div>
             )}
