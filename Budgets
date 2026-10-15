@@ -1,0 +1,2139 @@
+# Guia de Estudo — React, `useState`, `useEffect`, API e CRUD de Orçamentos
+
+Este código representa uma tela de gerenciamento de **orçamentos (budgets)**.
+
+A tela consegue:
+
+* Buscar orçamentos;
+* Buscar categorias;
+* Mostrar carregamento;
+* Criar orçamento;
+* Editar orçamento;
+* Excluir orçamento;
+* Analisar os orçamentos;
+* Atualizar a tela depois das alterações.
+
+---
+
+# 1. `useAuth()` e a moeda do usuário
+
+```js
+const { user } = useAuth();
+
+const currency = user?.currency || 'USD';
+```
+
+## `const { user } = useAuth()`
+
+`useAuth()` provavelmente é um hook criado no projeto para fornecer informações sobre o usuário que está logado.
+
+Exemplo de retorno:
+
+```js
+{
+    user: {
+        id: 10,
+        name: "João",
+        currency: "BRL"
+    }
+}
+```
+
+Com:
+
+```js
+const { user } = useAuth();
+```
+
+você pega somente a propriedade `user`.
+
+Seria parecido com:
+
+```js
+const auth = useAuth();
+const user = auth.user;
+```
+
+---
+
+## `user?.currency`
+
+O `?.` é chamado de **optional chaining**.
+
+Ele permite acessar:
+
+```js
+user.currency
+```
+
+sem causar erro caso `user` ainda não exista.
+
+Por exemplo:
+
+```js
+user = {
+    currency: "BRL"
+};
+```
+
+Então:
+
+```js
+user?.currency
+```
+
+resulta em:
+
+```text
+BRL
+```
+
+Mas se:
+
+```js
+user = null;
+```
+
+então:
+
+```js
+user?.currency
+```
+
+resulta em:
+
+```text
+undefined
+```
+
+sem quebrar o programa.
+
+---
+
+## `|| 'USD'`
+
+O operador `||` significa "ou".
+
+```js
+const currency = user?.currency || 'USD';
+```
+
+Significa:
+
+> Se o usuário tiver uma moeda, use essa moeda. Caso contrário, use `USD`.
+
+Exemplos:
+
+```js
+user.currency = "BRL"
+```
+
+Resultado:
+
+```text
+currency = "BRL"
+```
+
+Se não houver moeda:
+
+```text
+currency = "USD"
+```
+
+---
+
+# 2. Estados com `useState`
+
+Agora temos:
+
+```js
+const [budgets, setBudgets] = useState([]);
+const [categories, setCategories] = useState([]);
+const [loading, setLoading] = useState(true);
+const [modalOpen, setModalOpen] = useState(false);
+const [editing, setEditing] = useState(null);
+const [analyses, setAnalyses] = useState({});
+const [analyzing, setAnalyzing] = useState(true);
+```
+
+O `useState` é um hook do React usado para criar **estado**.
+
+A estrutura normalmente é:
+
+```js
+const [valor, setValor] = useState(valorInicial);
+```
+
+Por exemplo:
+
+```js
+const [loading, setLoading] = useState(true);
+```
+
+Temos:
+
+```text
+loading
+   ↓
+valor atual
+
+setLoading
+   ↓
+função para alterar o valor
+
+true
+   ↓
+valor inicial
+```
+
+---
+
+# 3. `budgets`
+
+```js
+const [budgets, setBudgets] = useState([]);
+```
+
+`budgets` guarda a lista de orçamentos.
+
+Começa como:
+
+```js
+[]
+```
+
+Ou seja:
+
+> Uma lista vazia.
+
+Depois podemos colocar dados nela:
+
+```js
+setBudgets([
+    {
+        id: 1,
+        category: "Alimentação",
+        amount: 500
+    }
+]);
+```
+
+Agora:
+
+```js
+budgets
+```
+
+contém:
+
+```js
+[
+    {
+        id: 1,
+        category: "Alimentação",
+        amount: 500
+    }
+]
+```
+
+---
+
+# 4. `categories`
+
+```js
+const [categories, setCategories] = useState([]);
+```
+
+Funciona da mesma forma, mas guarda as categorias.
+
+Inicialmente:
+
+```js
+categories = []
+```
+
+Depois pode receber:
+
+```js
+[
+    "Alimentação",
+    "Transporte",
+    "Lazer"
+]
+```
+
+Usamos `[]` porque estamos trabalhando com uma **lista**.
+
+---
+
+# 5. `loading`
+
+```js
+const [loading, setLoading] = useState(true);
+```
+
+Controla se os dados estão sendo carregados.
+
+Inicialmente:
+
+```text
+loading = true
+```
+
+Depois que o carregamento termina:
+
+```js
+setLoading(false);
+```
+
+Podemos usar isso no JSX:
+
+```jsx
+{loading && <p>Carregando...</p>}
+```
+
+Enquanto `loading` for `true`, aparece "Carregando...".
+
+---
+
+# 6. `modalOpen`
+
+```js
+const [modalOpen, setModalOpen] = useState(false);
+```
+
+Controla se o modal está aberto.
+
+Inicialmente:
+
+```text
+modalOpen = false
+```
+
+Modal fechado.
+
+Para abrir:
+
+```js
+setModalOpen(true);
+```
+
+Para fechar:
+
+```js
+setModalOpen(false);
+```
+
+Por exemplo:
+
+```jsx
+{modalOpen && <BudgetModal />}
+```
+
+Significa:
+
+> Se `modalOpen` for `true`, mostre o `BudgetModal`.
+
+---
+
+# 7. `editing`
+
+```js
+const [editing, setEditing] = useState(null);
+```
+
+Guarda o orçamento que está sendo editado.
+
+Inicialmente:
+
+```text
+editing = null
+```
+
+Isso significa:
+
+> Nenhum orçamento está sendo editado.
+
+Quando o usuário clica em editar:
+
+```js
+setEditing(budget);
+```
+
+Agora `editing` contém o orçamento selecionado.
+
+Exemplo:
+
+```js
+editing = {
+    id: 10,
+    category: "Alimentação",
+    amount: 500
+};
+```
+
+Se fizermos:
+
+```js
+setEditing(null);
+```
+
+voltamos para:
+
+> Nenhum orçamento está sendo editado.
+
+Isso é útil para diferenciar:
+
+```text
+editing === null
+        ↓
+CRIAR
+
+editing possui um objeto
+        ↓
+EDITAR
+```
+
+---
+
+# 8. `analyses`
+
+```js
+const [analyses, setAnalyses] = useState({});
+```
+
+Guarda as análises dos orçamentos.
+
+Começa como um objeto vazio:
+
+```js
+{}
+```
+
+Depois pode ficar:
+
+```js
+{
+    1: {
+        budgetId: 1,
+        message: "Seu orçamento está saudável."
+    },
+
+    2: {
+        budgetId: 2,
+        message: "Você está acima do limite."
+    }
+}
+```
+
+O motivo de usar um objeto é facilitar a busca:
+
+```js
+analyses[1]
+```
+
+Assim conseguimos pegar diretamente a análise do orçamento `1`.
+
+---
+
+# 9. `analyzing`
+
+```js
+const [analyzing, setAnalyzing] = useState(true);
+```
+
+Controla se as análises estão sendo processadas.
+
+Enquanto:
+
+```text
+analyzing = true
+```
+
+podemos mostrar:
+
+```text
+Analisando...
+```
+
+Quando terminar:
+
+```js
+setAnalyzing(false);
+```
+
+---
+
+# 10. Função `fetchData`
+
+```js
+const fetchData = async () => {
+    try {
+        setLoading(true);
+
+        const [bRes, cRes] = await Promise.all([
+            api.get(API_PATHS.BUDGETS.LIST),
+            api.get(API_PATHS.CATEGORIES.LIST)
+        ]);
+
+        setBudgets(bRes.data);
+        setCategories(cRes.data);
+
+    } catch (err) {
+        toast.error('Failed to load budgets');
+
+    } finally {
+        setLoading(false);
+    }
+};
+```
+
+Essa função é responsável por:
+
+> Buscar os orçamentos e as categorias da API.
+
+---
+
+# 11. `async`
+
+```js
+const fetchData = async () => {
+```
+
+`async` permite usar `await` dentro da função.
+
+Como requisições HTTP demoram algum tempo, precisamos trabalhar de forma assíncrona.
+
+---
+
+# 12. `try`
+
+```js
+try {
+```
+
+O `try` contém o código que pode gerar um erro.
+
+Se tudo funcionar:
+
+```text
+try
+ ↓
+sucesso
+```
+
+Se acontecer um erro:
+
+```text
+try
+ ↓
+erro
+ ↓
+catch
+```
+
+---
+
+# 13. `setLoading(true)`
+
+```js
+setLoading(true);
+```
+
+Informa ao React:
+
+> Os dados começaram a carregar.
+
+Então:
+
+```text
+loading = true
+```
+
+---
+
+# 14. `Promise.all`
+
+```js
+const [bRes, cRes] = await Promise.all([
+    api.get(API_PATHS.BUDGETS.LIST),
+    api.get(API_PATHS.CATEGORIES.LIST)
+]);
+```
+
+Aqui temos duas requisições:
+
+```js
+api.get(API_PATHS.BUDGETS.LIST)
+```
+
+Busca os orçamentos.
+
+E:
+
+```js
+api.get(API_PATHS.CATEGORIES.LIST)
+```
+
+Busca as categorias.
+
+`Promise.all()` permite esperar pelas duas.
+
+Visualmente:
+
+```text
+                API
+               /   \
+              /     \
+        Budgets   Categories
+           ↓          ↓
+         bRes       cRes
+              \     /
+               \   /
+             Promise.all
+                  ↓
+              continua
+```
+
+---
+
+# 15. Desestruturação de `Promise.all`
+
+O resultado de:
+
+```js
+Promise.all([...])
+```
+
+é um array.
+
+Algo parecido com:
+
+```js
+[
+    respostaDosBudgets,
+    respostaDasCategorias
+]
+```
+
+Por isso:
+
+```js
+const [bRes, cRes] = ...
+```
+
+significa:
+
+```text
+bRes → primeira resposta
+cRes → segunda resposta
+```
+
+Os nomes poderiam ser melhores:
+
+```js
+const [budgetResponse, categoryResponse] = ...
+```
+
+---
+
+# 16. `setBudgets`
+
+```js
+setBudgets(bRes.data);
+```
+
+Pega os dados retornados pela API e coloca no estado `budgets`.
+
+Por exemplo, a API pode retornar:
+
+```json
+[
+    {
+        "id": 1,
+        "category": "Alimentação",
+        "amount": 500
+    }
+]
+```
+
+Então:
+
+```js
+bRes.data
+```
+
+contém esses dados.
+
+E:
+
+```js
+setBudgets(bRes.data);
+```
+
+atualiza o estado.
+
+---
+
+# 17. `setCategories`
+
+```js
+setCategories(cRes.data);
+```
+
+Faz a mesma coisa para categorias.
+
+A API pode retornar:
+
+```js
+[
+    "Alimentação",
+    "Transporte",
+    "Lazer"
+]
+```
+
+Então:
+
+```js
+categories
+```
+
+passa a conter esses valores.
+
+---
+
+# 18. `catch`
+
+```js
+catch (err) {
+    toast.error('Failed to load budgets');
+}
+```
+
+Se algo der errado, mostramos uma mensagem:
+
+```text
+Failed to load budgets
+```
+
+O `err` contém informações técnicas sobre o erro.
+
+Podemos visualizar no console:
+
+```js
+console.error(err);
+```
+
+---
+
+# 19. `finally`
+
+```js
+finally {
+    setLoading(false);
+}
+```
+
+O `finally` executa independentemente de sucesso ou erro.
+
+Então:
+
+```text
+sucesso → finally
+erro    → catch → finally
+```
+
+E:
+
+```js
+setLoading(false);
+```
+
+informa:
+
+> O carregamento terminou.
+
+---
+
+# 20. Função `analyzeAll`
+
+```js
+const analyzeAll = async () => {
+    setAnalyses({});
+    setAnalyzing(true);
+
+    try {
+        const res = await api.post(API_PATHS.BUDGETS.ANALYZE);
+
+        const map = {};
+
+        (res.data.analyses || []).forEach((a) => {
+            map[a.budgetId] = a;
+        });
+
+        setAnalyses(map);
+
+    } catch (err) {
+        console.error('Failed to analyze budgets', err);
+
+    } finally {
+        setAnalyzing(false);
+    }
+};
+```
+
+Essa função serve para:
+
+> Pedir à API uma análise dos orçamentos e guardar os resultados no estado.
+
+---
+
+# 21. Limpando análises antigas
+
+```js
+setAnalyses({});
+```
+
+Antes de fazer uma nova análise, apagamos os resultados anteriores.
+
+Antes:
+
+```js
+{
+    1: {...},
+    2: {...}
+}
+```
+
+Depois:
+
+```js
+{}
+```
+
+---
+
+# 22. Começando a análise
+
+```js
+setAnalyzing(true);
+```
+
+Informa:
+
+> A análise começou.
+
+Agora:
+
+```text
+analyzing = true
+```
+
+---
+
+# 23. `api.post`
+
+```js
+const res = await api.post(API_PATHS.BUDGETS.ANALYZE);
+```
+
+Aqui estamos fazendo uma requisição `POST`.
+
+Enquanto `GET` normalmente é utilizado para buscar dados:
+
+```js
+api.get(...)
+```
+
+`POST` geralmente é utilizado para enviar uma solicitação ao servidor ou executar uma ação:
+
+```js
+api.post(...)
+```
+
+Nesse caso:
+
+```js
+API_PATHS.BUDGETS.ANALYZE
+```
+
+provavelmente aponta para um endpoint como:
+
+```text
+/budgets/analyze
+```
+
+A ideia seria:
+
+> "Backend, analise meus orçamentos."
+
+---
+
+# 24. `res.data.analyses`
+
+A API pode retornar algo como:
+
+```js
+{
+    analyses: [
+        {
+            budgetId: 1,
+            message: "Seu orçamento está saudável."
+        },
+        {
+            budgetId: 2,
+            message: "Você está acima do limite."
+        }
+    ]
+}
+```
+
+Então:
+
+```js
+res.data
+```
+
+é:
+
+```js
+{
+    analyses: [...]
+}
+```
+
+E:
+
+```js
+res.data.analyses
+```
+
+é:
+
+```js
+[
+    {...},
+    {...}
+]
+```
+
+---
+
+# 25. `|| []`
+
+```js
+res.data.analyses || []
+```
+
+É uma proteção.
+
+Se `analyses` existir:
+
+```js
+res.data.analyses
+```
+
+será utilizado.
+
+Se não existir:
+
+```js
+undefined
+```
+
+o código usa:
+
+```js
+[]
+```
+
+Isso evita fazer:
+
+```js
+undefined.forEach(...)
+```
+
+que causaria erro.
+
+Então:
+
+```js
+res.data.analyses || []
+```
+
+significa:
+
+> Use `analyses`; se não existir, use uma lista vazia.
+
+---
+
+# 26. `forEach`
+
+```js
+(res.data.analyses || []).forEach((a) => {
+```
+
+`forEach()` percorre todos os elementos de um array.
+
+Por exemplo:
+
+```js
+[
+    { budgetId: 1 },
+    { budgetId: 2 },
+    { budgetId: 3 }
+]
+```
+
+O `forEach` passa por cada elemento.
+
+A variável:
+
+```js
+a
+```
+
+representa a análise atual.
+
+Poderíamos escrever de forma mais clara:
+
+```js
+.forEach((analysis) => {
+```
+
+---
+
+# 27. `map[a.budgetId] = a`
+
+```js
+map[a.budgetId] = a;
+```
+
+Essa é uma parte muito importante.
+
+Começamos com:
+
+```js
+const map = {};
+```
+
+Então:
+
+```text
+map = {}
+```
+
+Suponha que `a` seja:
+
+```js
+{
+    budgetId: 15,
+    message: "Cuidado com seus gastos"
+}
+```
+
+Então:
+
+```js
+a.budgetId
+```
+
+é:
+
+```text
+15
+```
+
+E:
+
+```js
+map[a.budgetId] = a;
+```
+
+equivale a:
+
+```js
+map[15] = a;
+```
+
+Resultado:
+
+```js
+{
+    15: {
+        budgetId: 15,
+        message: "Cuidado com seus gastos"
+    }
+}
+```
+
+Se houver outra análise:
+
+```js
+{
+    budgetId: 20,
+    message: "Seu orçamento está saudável"
+}
+```
+
+o objeto fica:
+
+```js
+{
+    15: {
+        budgetId: 15,
+        message: "Cuidado com seus gastos"
+    },
+
+    20: {
+        budgetId: 20,
+        message: "Seu orçamento está saudável"
+    }
+}
+```
+
+Isso facilita buscar uma análise:
+
+```js
+analyses[15]
+```
+
+---
+
+# 28. `setAnalyses(map)`
+
+Depois de montar o objeto:
+
+```js
+setAnalyses(map);
+```
+
+salvamos o resultado no estado.
+
+Agora o React pode acessar:
+
+```js
+analyses[budget.id]
+```
+
+para encontrar a análise correspondente ao orçamento.
+
+---
+
+# 29. `catch` da análise
+
+```js
+catch (err) {
+    console.error('Failed to analyze budgets', err);
+}
+```
+
+Se a análise falhar, o erro será mostrado no console.
+
+---
+
+# 30. `finally` da análise
+
+```js
+finally {
+    setAnalyzing(false);
+}
+```
+
+Quando a análise terminar, com sucesso ou erro:
+
+```text
+analyzing = false
+```
+
+Isso permite esconder um indicador de carregamento.
+
+---
+
+# 31. `useEffect`
+
+```js
+useEffect(() => {
+    fetchData();
+    analyzeAll();
+}, []);
+```
+
+`useEffect` permite executar código quando determinadas condições acontecem no componente.
+
+Nesse caso temos:
+
+```js
+[]
+```
+
+como array de dependências.
+
+Um array vazio significa:
+
+> Execute esse efeito quando o componente for montado.
+
+Então, quando a página abre:
+
+```text
+Componente montado
+       ↓
+useEffect
+       ↓
+fetchData()
+       ↓
+analyzeAll()
+```
+
+---
+
+# 32. O `[]` do `useEffect`
+
+Exemplo:
+
+```js
+useEffect(() => {
+    console.log("Executou");
+}, []);
+```
+
+Com `[]`, o efeito não depende de nenhum estado ou variável.
+
+A intenção é executá-lo uma vez na montagem.
+
+Se tivéssemos:
+
+```js
+useEffect(() => {
+    console.log("Budgets mudou");
+}, [budgets]);
+```
+
+ele seria executado quando `budgets` mudasse.
+
+---
+
+# 33. `onEdit`
+
+```js
+const onEdit = (b) => {
+    setEditing(b);
+    setModalOpen(true);
+};
+```
+
+Essa função é chamada quando o usuário quer editar um orçamento.
+
+`b` provavelmente significa:
+
+```text
+budget
+```
+
+Por exemplo:
+
+```js
+b = {
+    id: 10,
+    category: "Alimentação",
+    amount: 500
+}
+```
+
+Primeiro:
+
+```js
+setEditing(b);
+```
+
+guardamos o orçamento que será editado.
+
+Depois:
+
+```js
+setModalOpen(true);
+```
+
+abrimos o modal.
+
+Fluxo:
+
+```text
+Clique em Editar
+       ↓
+onEdit(b)
+       ↓
+editing = b
+       ↓
+modalOpen = true
+       ↓
+abre modal
+```
+
+---
+
+# 34. `onCreate`
+
+```js
+const onCreate = () => {
+    setEditing(null);
+    setModalOpen(true);
+};
+```
+
+Essa função é utilizada para criar um orçamento novo.
+
+Primeiro:
+
+```js
+setEditing(null);
+```
+
+Isso informa:
+
+> Não existe orçamento sendo editado.
+
+Depois:
+
+```js
+setModalOpen(true);
+```
+
+abre o modal.
+
+Então:
+
+```text
+Clique em Criar
+       ↓
+onCreate()
+       ↓
+editing = null
+       ↓
+modalOpen = true
+       ↓
+abre modal vazio
+```
+
+---
+
+# 35. Diferença entre `onEdit` e `onCreate`
+
+### Editar
+
+```js
+onEdit(budget)
+```
+
+Tem um orçamento:
+
+```js
+editing = budget
+```
+
+Significa:
+
+> Estou editando algo existente.
+
+### Criar
+
+```js
+onCreate()
+```
+
+Não tem orçamento:
+
+```js
+editing = null
+```
+
+Significa:
+
+> Estou criando algo novo.
+
+O mesmo modal pode então verificar:
+
+```js
+if (editing) {
+    // modo edição
+} else {
+    // modo criação
+}
+```
+
+---
+
+# 36. `onSaved`
+
+```js
+const onSaved = () => {
+    setModalOpen(false);
+    fetchData();
+    analyzeAll();
+};
+```
+
+Essa função provavelmente é chamada depois que o orçamento foi salvo com sucesso.
+
+Primeiro:
+
+```js
+setModalOpen(false);
+```
+
+Fecha o modal.
+
+Depois:
+
+```js
+fetchData();
+```
+
+Busca novamente os dados da API.
+
+Isso atualiza os orçamentos e categorias.
+
+Finalmente:
+
+```js
+analyzeAll();
+```
+
+refaz as análises.
+
+O fluxo é:
+
+```text
+Usuário salva orçamento
+        ↓
+onSaved()
+        ↓
+fecha modal
+        ↓
+busca dados atualizados
+        ↓
+refaz análises
+        ↓
+tela atualizada
+```
+
+---
+
+# 37. Por que chamar `fetchData()` depois de salvar?
+
+Imagine que temos:
+
+```js
+budgets = [
+    {
+        id: 1,
+        category: "Alimentação",
+        amount: 500
+    }
+]
+```
+
+O usuário cria um novo orçamento:
+
+```text
+Transporte → 300
+```
+
+O backend agora possui:
+
+```js
+[
+    {
+        id: 1,
+        category: "Alimentação",
+        amount: 500
+    },
+    {
+        id: 2,
+        category: "Transporte",
+        amount: 300
+    }
+]
+```
+
+Precisamos buscar esses dados novamente para que o React saiba da alteração.
+
+Por isso:
+
+```js
+fetchData();
+```
+
+---
+
+# 38. Por que chamar `analyzeAll()` depois de salvar?
+
+Porque o orçamento mudou.
+
+Se a análise anterior dizia:
+
+```text
+Seu orçamento está saudável.
+```
+
+e o usuário altera o orçamento, essa análise pode deixar de ser válida.
+
+Então:
+
+```js
+analyzeAll();
+```
+
+pede uma nova análise.
+
+---
+
+# 39. `onDelete`
+
+```js
+const onDelete = async (id) => {
+    if (!confirm('Delete this budget?')) return;
+
+    try {
+        await api.delete(API_PATHS.BUDGETS.DELETE(id));
+
+        toast.success('Budget deleted');
+
+        fetchData();
+
+    } catch (err) {
+        toast.error('Failed to delete budget');
+    }
+};
+```
+
+Essa função exclui um orçamento.
+
+---
+
+# 40. O `id` no `onDelete`
+
+```js
+const onDelete = async (id) => {
+```
+
+O `id` identifica qual orçamento será excluído.
+
+Exemplo:
+
+```js
+onDelete(15);
+```
+
+Então:
+
+```text
+id = 15
+```
+
+---
+
+# 41. `confirm`
+
+```js
+if (!confirm('Delete this budget?')) return;
+```
+
+Antes de excluir, perguntamos ao usuário:
+
+```text
+Delete this budget?
+
+[Cancelar] [OK]
+```
+
+Se o usuário cancelar:
+
+```text
+confirm() → false
+```
+
+Então:
+
+```js
+!false
+```
+
+vira:
+
+```text
+true
+```
+
+e:
+
+```js
+return;
+```
+
+interrompe a função.
+
+Se o usuário confirmar:
+
+```text
+confirm() → true
+```
+
+a condição não é executada e a função continua.
+
+---
+
+# 42. `api.delete`
+
+```js
+await api.delete(API_PATHS.BUDGETS.DELETE(id));
+```
+
+Aqui fazemos uma requisição HTTP `DELETE`.
+
+Por exemplo, se:
+
+```js
+id = 15
+```
+
+e:
+
+```js
+API_PATHS.BUDGETS.DELETE(id)
+```
+
+produzir:
+
+```text
+/budgets/15
+```
+
+seria parecido com:
+
+```js
+await api.delete('/budgets/15');
+```
+
+O servidor recebe:
+
+> Exclua o orçamento 15.
+
+---
+
+# 43. `await` no DELETE
+
+```js
+await api.delete(...)
+```
+
+Significa:
+
+> Espere a resposta do servidor antes de continuar.
+
+Se a operação for bem-sucedida, continua:
+
+```js
+toast.success(...)
+```
+
+Se der erro, vai para:
+
+```js
+catch
+```
+
+---
+
+# 44. `toast.success`
+
+```js
+toast.success('Budget deleted');
+```
+
+Mostra uma mensagem de sucesso:
+
+```text
+✅ Budget deleted
+```
+
+Isso informa ao usuário que a exclusão foi concluída.
+
+---
+
+# 45. `fetchData()` depois de excluir
+
+```js
+fetchData();
+```
+
+Depois da exclusão, buscamos os dados novamente.
+
+Por exemplo:
+
+Antes:
+
+```text
+Alimentação
+Transporte
+Lazer
+```
+
+Usuário exclui Transporte.
+
+A API agora possui:
+
+```text
+Alimentação
+Lazer
+```
+
+`fetchData()` atualiza o estado do React para refletir isso.
+
+---
+
+# 46. `catch` do DELETE
+
+```js
+catch (err) {
+    toast.error('Failed to delete budget');
+}
+```
+
+Se ocorrer algum problema:
+
+```text
+❌ Failed to delete budget
+```
+
+é mostrado ao usuário.
+
+Para desenvolvimento, podemos também usar:
+
+```js
+console.error('Failed to delete budget', err);
+```
+
+Assim temos detalhes técnicos no console.
+
+---
+
+# 47. Um detalhe importante sobre o `onDelete`
+
+Depois de excluir, também pode ser necessário refazer as análises:
+
+```js
+const onDelete = async (id) => {
+    if (!confirm('Delete this budget?')) return;
+
+    try {
+        await api.delete(API_PATHS.BUDGETS.DELETE(id));
+
+        toast.success('Budget deleted');
+
+        await fetchData();
+        await analyzeAll();
+
+    } catch (err) {
+        console.error('Failed to delete budget', err);
+        toast.error('Failed to delete budget');
+    }
+};
+```
+
+A vantagem de:
+
+```js
+await fetchData();
+await analyzeAll();
+```
+
+é garantir a ordem:
+
+```text
+exclui
+  ↓
+atualiza dados
+  ↓
+terminou
+  ↓
+refaz análise
+```
+
+---
+
+# 48. Como tudo se conecta
+
+Agora podemos juntar tudo.
+
+Quando a página abre:
+
+```text
+COMPONENTE MONTA
+       ↓
+   useEffect
+       ↓
+ ┌───────────────┐
+ │               │
+fetchData()   analyzeAll()
+ │               │
+ ↓               ↓
+budgets       analyses
+categories
+```
+
+---
+
+# 49. Quando o usuário cria
+
+```text
+Clique em "Criar"
+       ↓
+onCreate()
+       ↓
+editing = null
+       ↓
+modalOpen = true
+       ↓
+abre modal
+       ↓
+usuário preenche
+       ↓
+salva
+       ↓
+onSaved()
+       ↓
+fecha modal
+       ↓
+fetchData()
+       ↓
+analyzeAll()
+```
+
+---
+
+# 50. Quando o usuário edita
+
+```text
+Clique em "Editar"
+       ↓
+onEdit(budget)
+       ↓
+editing = budget
+       ↓
+modalOpen = true
+       ↓
+abre modal preenchido
+       ↓
+usuário altera
+       ↓
+salva
+       ↓
+onSaved()
+       ↓
+fecha modal
+       ↓
+fetchData()
+       ↓
+analyzeAll()
+```
+
+---
+
+# 51. Quando o usuário exclui
+
+```text
+Clique em "Excluir"
+       ↓
+onDelete(id)
+       ↓
+confirm()
+       ↓
+usuário confirma
+       ↓
+api.delete()
+       ↓
+API exclui
+       ↓
+fetchData()
+       ↓
+lista atualizada
+       ↓
+analyzeAll()
+       ↓
+análises atualizadas
+```
+
+---
+
+# 52. Os principais conceitos que você deve memorizar
+
+## `useState`
+
+Cria estado:
+
+```js
+const [valor, setValor] = useState(valorInicial);
+```
+
+Exemplo:
+
+```js
+const [loading, setLoading] = useState(false);
+```
+
+---
+
+## `set...`
+
+Atualiza o estado:
+
+```js
+setLoading(true);
+```
+
+---
+
+## `useEffect`
+
+Executa código relacionado ao ciclo de vida do componente:
+
+```js
+useEffect(() => {
+    // código
+}, []);
+```
+
+Com `[]`, a intenção é executar na montagem.
+
+---
+
+## `async`
+
+Indica que a função trabalha de forma assíncrona:
+
+```js
+const fetchData = async () => {
+```
+
+---
+
+## `await`
+
+Espera uma `Promise` terminar:
+
+```js
+const res = await api.get(...);
+```
+
+---
+
+## `try/catch`
+
+Tratamento de erros:
+
+```js
+try {
+    // tenta
+} catch (err) {
+    // se der erro
+}
+```
+
+---
+
+## `finally`
+
+Executa depois do `try/catch`, independentemente do resultado:
+
+```js
+finally {
+    // sempre executa
+}
+```
+
+---
+
+## `Promise.all`
+
+Executa várias Promises e espera todas:
+
+```js
+const [a, b] = await Promise.all([
+    requisicao1(),
+    requisicao2()
+]);
+```
+
+---
+
+## `GET`
+
+Normalmente usado para buscar dados:
+
+```js
+api.get(...)
+```
+
+---
+
+## `POST`
+
+Normalmente usado para enviar uma solicitação ou executar uma ação:
+
+```js
+api.post(...)
+```
+
+---
+
+## `DELETE`
+
+Usado para excluir:
+
+```js
+api.delete(...)
+```
+
+---
+
+## `map`
+
+Objeto usado para organizar dados por uma chave:
+
+```js
+map[id] = objeto;
+```
+
+Por exemplo:
+
+```js
+map[10] = {
+    id: 10,
+    name: "Alimentação"
+};
+```
+
+---
+
+## `forEach`
+
+Percorre um array:
+
+```js
+array.forEach((item) => {
+    // faz algo com item
+});
+```
+
+---
+
+## `confirm`
+
+Pede confirmação ao usuário:
+
+```js
+if (!confirm("Tem certeza?")) return;
+```
+
+---
+
+## `||`
+
+Operador "OU":
+
+```js
+valor || valorPadrao
+```
+
+Exemplo:
+
+```js
+const currency = user?.currency || 'USD';
+```
+
+---
+
+## `?.`
+
+Optional chaining:
+
+```js
+user?.currency
+```
+
+Evita erro se `user` for `null` ou `undefined`.
+
+---
+
+# 53. Resumo final
+
+Esse componente está seguindo basicamente o padrão:
+
+```text
+                 USUÁRIO
+                    │
+                    ▼
+              COMPONENTE
+                    │
+          ┌─────────┴─────────┐
+          │                   │
+       useState            useEffect
+          │                   │
+          │                   ▼
+          │               fetchData
+          │                   │
+          │              busca API
+          │                   │
+          │          ┌────────┴────────┐
+          │          ▼                 ▼
+          │       budgets          categories
+          │
+          │
+          ├───────────────┐
+          │               │
+          ▼               ▼
+       onCreate         onEdit
+          │               │
+          │               ▼
+          │            editing
+          │               │
+          └───────┬───────┘
+                  ▼
+                Modal
+                  │
+                  ▼
+               onSaved
+                  │
+          ┌───────┴────────┐
+          ▼                ▼
+      fetchData        analyzeAll
+          │                │
+          ▼                ▼
+       estados         análises
+
+
+              EXCLUSÃO
+                  │
+                  ▼
+              onDelete
+                  │
+                  ▼
+              confirm
+                  │
+                  ▼
+             api.delete
+                  │
+                  ▼
+              fetchData
+                  │
+                  ▼
+             analyzeAll
+```
+
+A ideia central é:
+
+> **O React mantém os dados no estado (`useState`), busca e envia informações para a API (`get`, `post`, `delete`), reage às ações do usuário (`onCreate`, `onEdit`, `onDelete`) e atualiza a interface quando os estados mudam.**
+
+Se você entender bem **`useState` + `useEffect` + `async/await` + `try/catch` + requisições HTTP + `setState`**, já terá uma base muito importante para entender esse tipo de componente React.
