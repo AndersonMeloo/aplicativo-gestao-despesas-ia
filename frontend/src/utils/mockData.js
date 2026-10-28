@@ -126,7 +126,18 @@ const buildMockBudgets = () => {
         { categoryName: 'Lazer', amount: 200, spent: 160 },
         { categoryName: 'Transporte', amount: 350, spent: 190 },
         { categoryName: 'Shopping', amount: 250, spent: 320 },
+        {
+            categoryName: 'Contas a pagar',
+            amount: 600,
+            spent: 541.67,
+            // Compra parcelada em andamento (exibida no card do orçamento)
+            plans: [{ name: 'Compra parcelada', total_installments: 12, paid: 3, next_amount: '541.67', remaining_amount: '4874.99', nextInMonths: 1 }],
+        },
     ];
+    const nextDate = (months) => {
+        const d = new Date(today.getFullYear(), today.getMonth() + months, 16);
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-16`;
+    };
     return items.map((b, i) => {
         const c = catMap[b.categoryName];
         return {
@@ -140,6 +151,11 @@ const buildMockBudgets = () => {
             spent: b.spent.toFixed(2),
             period: 'monthly',
             start_date: monthStart,
+            installment_plans: (b.plans || []).map(({ nextInMonths, ...p }) => ({
+                ...p,
+                category_id: c.id,
+                next_date: nextDate(nextInMonths),
+            })),
         };
     });
 };
@@ -153,6 +169,7 @@ export const mockDashboardSummary = {
     incomeThisMonth: 6100, // Total de receitas do mês atual
     expenseThisMonth: 3540, // Total de despesas do mês atual
     balance: 2560, // Saldo do mês (receitas - despesas)
+    totalBalance: 8740.5, // Saldo atual: tudo que entrou - tudo que saiu, desde o início
     savingsRate: 42, // Percentual da renda economizada no mês
     incomeDelta: 5.2, // Variação (%) das receitas em relação ao período anterior
     expenseDelta: -8.3, // Variação (%) das despesas em relação ao período anterior
