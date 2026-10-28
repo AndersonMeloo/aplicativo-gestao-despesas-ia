@@ -32,6 +32,15 @@ export const addMonths = (iso, months) => {
 
 export const monthEnd = (iso) => addDays(addMonths(iso, 1), -1);
 
+// Avança N meses mantendo o dia (usado nas parcelas). Se o mês não tiver esse dia,
+// usa o último dia do mês: 31/01 + 1 mês = 28/02 (ou 29/02 em ano bissexto).
+export const addMonthsKeepDay = (iso, months) => {
+    const target = addMonths(iso, months);
+    const lastDay = Number(monthEnd(target).slice(8));
+    const day = Math.min(Number(iso.slice(8)), lastDay);
+    return `${target.slice(0, 8)}${pad(day)}`;
+};
+
 // Semana de segunda a domingo
 export const weekStart = (iso) => {
     const dow = fromISO(iso).getUTCDay(); // 0 = domingo
