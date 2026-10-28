@@ -107,9 +107,9 @@ const Login = () => {
                 </div>
 
                 <div className="flex justify-start gap-6 text-xs text-slate-500">
-                    <a className="hover:text-slate-900 transition cursor-pointer">Política de privacidade</a>
-                    <a className="hover:text-slate-900 transition cursor-pointer">Termos</a>
-                    <a className="hover:text-slate-900 transition cursor-pointer">FAQ</a>
+                    <Link to="/termos#privacidade" className="hover:text-slate-900 transition">Política de privacidade</Link>
+                    <Link to="/termos" className="hover:text-slate-900 transition">Termos</Link>
+                    <Link to="/faq" className="hover:text-slate-900 transition">FAQ</Link>
                 </div>
 
             </div>
