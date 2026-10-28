@@ -3,7 +3,7 @@ import { Plus, Target, Pencil, Trash2, Sparkles, CheckCircle2, AlertTriangle, Al
 import toast from 'react-hot-toast';
 import { API_PATHS } from '../utils/apiPaths.js';
 import { useAuth } from '../context/AuthContext.jsx';
-import { formatCurrency } from '../utils/format.js';
+import { formatCurrency, formatDate } from '../utils/format.js';
 import Button from '../components/ui/Button.jsx';
 import CategoryBadge from '../components/CategoryBadge.jsx';
 import EmptyState from '../components/EmptyState.jsx';
@@ -238,6 +238,39 @@ const Budgets = () => {
                                             : `Restam ${formatCurrency(total - spent, currency)}`}
                                     </span>
                                 </div>
+
+                                {/* Compras parceladas desta categoria: quantas parcelas já foram pagas e quantas faltam */}
+                                {(b.installment_plans || []).map((plan) => {
+                                    const remaining = plan.total_installments - plan.paid;
+                                    const paidPct = (plan.paid / plan.total_installments) * 100;
+                                    return (
+                                        <div
+                                            key={`${plan.name}-${plan.total_installments}`}
+                                            className="mt-4 rounded-2xl bg-slate-50 border border-slate-100 px-4 py-3"
+                                        >
+                                            <div className="flex items-center justify-between gap-2 text-xs">
+                                                <span className="font-semibold text-slate-800 truncate">{plan.name}</span>
+                                                <span className="text-slate-600 shrink-0">
+                                                    <span className="font-semibold text-violet-700">{plan.paid}/{plan.total_installments}</span> parcelas pagas
+                                                </span>
+                                            </div>
+                                            <div className="mt-2 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                                                <div className="h-full bg-violet-500 rounded-full" style={{ width: `${paidPct}%` }} />
+                                            </div>
+                                            <div className="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-0.5 text-[11px] text-slate-500">
+                                                <span>
+                                                    Faltam {remaining} {remaining === 1 ? 'parcela' : 'parcelas'} ·{' '}
+                                                    {formatCurrency(plan.remaining_amount, currency)}
+                                                </span>
+                                                {plan.next_date && (
+                                                    <span>
+                                                        Próxima: {formatCurrency(plan.next_amount, currency)} em {formatDate(plan.next_date)}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
 
                                 {analysis && style ? (
                                     <div className="mt-4 pt-4 border-t border-slate-100">
