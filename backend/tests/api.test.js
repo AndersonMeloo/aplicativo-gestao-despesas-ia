@@ -20,7 +20,7 @@ const { default: app } = await import('../app.js');
 const { default: pool } = await import('../db.js');
 const { migrate } = await import('../scripts/migrate.js');
 const gemini = await import('../services/gemini.service.js');
-const { today, addDays, monthStart } = await import('../utils/dates.js');
+const { today, addDays, addMonths, monthStart } = await import('../utils/dates.js');
 
 // ---------------------------------------------------------------------------
 // Gemini falso: responde conforme o schema pedido e guarda os prompts enviados
@@ -218,6 +218,52 @@ describe('Categorias, transações e orçamentos', () => {
         assert.equal((await request('POST', '/transactions', { token, body: { ...base, categoryId: salario.id } })).status, 400);
     });
 
+    test('compra parcelada cria uma transação por mês e a soma bate com o total', async () => {
+        const contas = await categoryByName(token, 'Contas a pagar');
+        const res = await request('POST', '/transactions', {
+            token,
+            body: {
+                type: 'expense',
+                amount: 6500,
+                categoryId: contas.id,
+                description: 'Compra parcelada',
+                transactionDate: '2026-08-16',
+                installments: 12,
+            },
+        });
+        assert.equal(res.status, 201);
+        assert.equal(res.data.length, 12);
+
+        const parcelas = [...res.data].sort((a, b) => a.transaction_date.localeCompare(b.transaction_date));
+        assert.equal(parcelas[0].transaction_date, '2026-08-16');
+        assert.equal(parcelas[0].description, 'Compra parcelada (1/12)');
+        assert.equal(parcelas[0].amount, '541.67');
+        assert.equal(parcelas[11].amount, '541.63');
+        assert.equal(parcelas[11].transaction_date, '2027-07-16');
+        assert.equal(parcelas[11].description, 'Compra parcelada (12/12)');
+        const totalCentavos = parcelas.reduce((s, t) => s + Math.round(Number(t.amount) * 100), 0);
+        assert.equal(totalCentavos, 650000);
+
+        // Remove as parcelas para não interferir nos próximos testes
+        for (const t of parcelas) await request('DELETE', `/transactions/${t.id}`, { token });
+    });
+
+    test('parcelas no dia 31 usam o último dia dos meses mais curtos', async () => {
+        const res = await request('POST', '/transactions', {
+            token,
+            body: { type: 'expense', amount: 300, transactionDate: '2027-01-31', installments: 3 },
+        });
+        const datas = res.data.map((t) => t.transaction_date).sort();
+        assert.deepEqual(datas, ['2027-01-31', '2027-02-28', '2027-03-31']);
+        for (const t of res.data) await request('DELETE', `/transactions/${t.id}`, { token });
+
+        const invalida = await request('POST', '/transactions', {
+            token,
+            body: { type: 'expense', amount: 300, transactionDate: '2027-01-31', installments: 61 },
+        });
+        assert.equal(invalida.status, 400);
+    });
+
     test('orçamento calcula o valor gasto no mês', async () => {
         const restaurante = await categoryByName(token, 'Restaurante');
         for (const amount of [40, 60]) {
@@ -244,6 +290,35 @@ describe('Categorias, transações e orçamentos', () => {
         const analysis = await request('POST', '/budgets/analyze', { token });
         assert.equal(analysis.data.analyses[0].status, 'caution'); // 100 de 120 = 83%
         assert.equal(analysis.data.analyses[0].message, 'IA: Restaurante');
+    });
+
+    test('orçamento mostra o progresso da compra parcelada e não projeta a parcela como gasto variável', async () => {
+        const contas = await categoryByName(token, 'Contas a pagar');
+        const primeira = addMonths(today(), -2); // dia 1º de dois meses atrás
+        await request('POST', '/transactions', {
+            token,
+            body: { type: 'expense', amount: 1200, categoryId: contas.id, description: 'Notebook', transactionDate: primeira, installments: 12 },
+        });
+        await request('POST', '/budgets', { token, body: { categoryId: contas.id, amount: 150, period: 'monthly' } });
+
+        const { data: budgets } = await request('GET', '/budgets', { token });
+        const orc = budgets.find((b) => b.category_name === 'Contas a pagar');
+        assert.equal(orc.spent, '100.00');
+        assert.equal(orc.installment_plans.length, 1);
+        const plano = orc.installment_plans[0];
+        assert.equal(plano.name, 'Notebook');
+        assert.equal(plano.total_installments, 12);
+        assert.equal(plano.paid, 3);
+        assert.equal(plano.remaining_amount, '900.00');
+        assert.equal(plano.next_date, addMonths(today(), 1));
+
+        // A projeção do mês é a própria parcela (R$ 100), e não uma extrapolação diária
+        geminiCalls.length = 0;
+        await request('POST', '/budgets/analyze', { token });
+        const dados = JSON.parse(geminiCalls.at(-1).split('DADOS FINANCEIROS (JSON):\n')[1]);
+        const enviado = dados.budgets.find((b) => b.category === 'Contas a pagar');
+        assert.equal(enviado.installmentsInPeriod, 100);
+        assert.equal(enviado.projectedSpent, 100);
     });
 
     test('orçamento só aceita categoria de despesa', async () => {
@@ -350,6 +425,8 @@ describe('Dashboard', () => {
         assert.equal(data.incomeThisMonth, 5000);
         assert.equal(data.expenseThisMonth, 2000);
         assert.equal(data.balance, 3000);
+        // Saldo atual acumulado: 5000 de receita - 2000 deste mês - 300 do mês anterior
+        assert.equal(data.totalBalance, 2700);
         assert.equal(data.savingsRate, 60);
         assert.equal(typeof data.savingsRate, 'number');
     });
