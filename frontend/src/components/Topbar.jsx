@@ -1,5 +1,6 @@
-import { Bell, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
+import NotificationBell from './NotificationBell.jsx';
 
 const greeting = () => {
     const h = new Date().getHours();
@@ -35,13 +36,7 @@ const Topbar = () => {
                 >
                     <Search size={17} />
                 </button>
-                <button
-                    title="Notificações"
-                    className="relative h-9 w-9 rounded-full text-slate-500 hover:bg-slate-100 hover:text-slate-900 flex items-center justify-center transition"
-                >
-                    <Bell size={17} />
-                    <span className="absolute top-2 right-2 h-2 w-2 bg-rose-500 rounded-full ring-2 ring-white" />
-                </button>
+                <NotificationBell />
             </div>
         </header>
     );
