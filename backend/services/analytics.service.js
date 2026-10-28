@@ -28,7 +28,7 @@ export const budgetStatus = (spent, limit) => {
 // Dashboard
 // ---------------------------------------------------------------------------
 
-// KPIs do mês atual. As variações comparam o mês atual ATÉ HOJE com o mesmo
+// KPIs do mês atual + saldo atual (acumulado). As variações comparam o mês atual ATÉ HOJE com o mesmo
 // intervalo de dias do mês anterior (ex.: 1–14/out vs 1–14/set), para uma comparação justa.
 export const getSummary = async (userId) => {
     const t = dates.today();
@@ -37,16 +37,19 @@ export const getSummary = async (userId) => {
     const prevEnd = dates.monthEnd(prevStart);
     const prevSameDay = dates.addDays(prevStart, dates.daysBetween(start, t));
 
-    const [month, monthToDate, prevToDate] = await Promise.all([
+    const [month, monthToDate, prevToDate, allTime] = await Promise.all([
         analyticsRepo.getTotals(userId, start, dates.monthEnd(t)),
         analyticsRepo.getTotals(userId, start, t),
         analyticsRepo.getTotals(userId, prevStart, prevSameDay < prevEnd ? prevSameDay : prevEnd),
+        // Tudo que já entrou menos tudo que já saiu, do primeiro lançamento até hoje
+        analyticsRepo.getTotals(userId, '1900-01-01', t),
     ]);
 
     return {
         incomeThisMonth: round2(month.income),
         expenseThisMonth: round2(month.expense),
         balance: round2(month.income - month.expense),
+        totalBalance: round2(allTime.income - allTime.expense),
         savingsRate: savingsRate(month.income, month.expense),
         incomeDelta: percentChange(monthToDate.income, prevToDate.income),
         expenseDelta: percentChange(monthToDate.expense, prevToDate.expense),
@@ -80,10 +83,13 @@ export const getBudgetsWithSpent = (userId) => {
 // Dados preparados para a IA
 // ---------------------------------------------------------------------------
 
-// Resumo de cada orçamento com status e projeção de gasto até o fim do período
+// Resumo de cada orçamento com status e projeção de gasto até o fim do período.
+// Parcelas são valores fixos (caem uma vez no mês), então entram na projeção pelo valor exato;
+// só os gastos variáveis são projetados pelo ritmo diário.
 export const describeBudgets = (budgets, ref = dates.today()) =>
     budgets.map((b) => {
         const spent = Number(b.spent);
+        const installments = Number(b.installment_spent || 0);
         const limit = Number(b.amount);
         const { start, end } = dates.budgetPeriodRange(b.period, ref);
         const totalDays = dates.daysBetween(start, end) + 1;
@@ -97,7 +103,8 @@ export const describeBudgets = (budgets, ref = dates.today()) =>
             usedPct: limit > 0 ? round1((spent / limit) * 100) : 0,
             remaining: round2(limit - spent),
             daysLeft: totalDays - elapsedDays,
-            projectedSpent: round2((spent / elapsedDays) * totalDays),
+            installmentsInPeriod: round2(installments),
+            projectedSpent: round2(installments + ((spent - installments) / elapsedDays) * totalDays),
             status: budgetStatus(spent, limit),
         };
     });
@@ -167,6 +174,7 @@ export const buildMonthlySnapshot = async (userId, currency) => {
                 income: summary.incomeThisMonth,
                 expense: summary.expenseThisMonth,
                 balance: summary.balance,
+                accumulatedBalance: summary.totalBalance,
                 savingsRatePct: summary.savingsRate,
             },
             comparisonWithSamePeriodLastMonth: {
