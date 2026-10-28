@@ -308,7 +308,7 @@ npm run dev
 | `DB_SSL` | `false` para Postgres local sem SSL (padrão: SSL ativo, exigido pelo Neon) |
 | `JWT_SECRET` | Segredo para assinar os tokens (valor longo e aleatório) |
 | `GEMINI_API_KEY` | Chave da API do Gemini |
-| `GEMINI_MODEL` | Modelo usado (padrão: `gemini-2.5-flash`) |
+| `GEMINI_MODEL` | Modelo usado (padrão: `gemini-3.5-flash-lite`) |
 | `FRONTEND_URL` | Endereço do frontend liberado no CORS (padrão: `http://localhost:5173`) |
 | `APP_TIMEZONE` | Fuso para definir "hoje" e "mês atual" (padrão: `America/Sao_Paulo`) |
 | `DATABASE_URL_TEST` | Banco separado, usado apenas pelos testes |
