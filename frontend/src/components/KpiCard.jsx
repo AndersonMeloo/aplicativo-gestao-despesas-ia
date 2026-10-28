@@ -10,7 +10,7 @@ const gradients = {
     slate: 'from-slate-400 to-slate-600',
 }
 
-const KpidCard = ({ label, value, delta, icon: Icon, accent = 'slate' }) => {
+const KpidCard = ({ label, value, delta, hint, icon: Icon, accent = 'slate' }) => {
     const hasDelta = delta != null && Number.isFinite(delta);
     const positive = hasDelta && delta > 0;
     const gradient = gradients[accent] || gradients.slate;
@@ -36,6 +36,7 @@ const KpidCard = ({ label, value, delta, icon: Icon, accent = 'slate' }) => {
                         </span>
                     )}
                 </div>
+                {hint && <p className="text-xs text-slate-500 mt-0.5 truncate">{hint}</p>}
             </div>
         </div>
     )
