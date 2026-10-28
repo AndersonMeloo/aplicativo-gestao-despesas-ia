@@ -13,6 +13,27 @@ body,
     height: 100%;
 }
 
+/* Cursor de "mãozinha" em tudo que é clicável (o Tailwind 4 usa o cursor padrão nos botões) */
+@layer base {
+    button:not(:disabled),
+    [role='button'],
+    a[href],
+    select:not(:disabled),
+    summary,
+    label[for],
+    input[type='checkbox']:not(:disabled),
+    input[type='radio']:not(:disabled),
+    input[type='date'],
+    input[type='date']::-webkit-calendar-picker-indicator {
+        cursor: pointer;
+    }
+
+    button:disabled,
+    select:disabled {
+        cursor: not-allowed;
+    }
+}
+
 body {
     font-family: var(--font-sans);
     background-color: #f8fafc;
