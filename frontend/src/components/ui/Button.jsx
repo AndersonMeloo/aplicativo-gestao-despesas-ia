@@ -15,7 +15,7 @@ const sizes = {
 const Button = ({ variant = 'primary', size = 'md', className = '', children, ...props }) => {
     return (
         <button
-            className={`inline-flex items-center justify-center gap-2 rounded-full font-medium transition disabled:opacity-50 disabled:cursor-not-allowed ${variants[variant]} ${sizes[size]} ${className}`}
+            className={`inline-flex items-center justify-center gap-2 rounded-full font-medium transition disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed ${variants[variant]} ${sizes[size]} ${className}`}
             {...props}
         >
             {children}
