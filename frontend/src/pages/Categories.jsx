@@ -116,7 +116,7 @@ const Categories = () => {
                                             </button>
                                             <button
                                                 onClick={() => onDelete(c.id)}
-                                                className="p-1.5 hover:bg-rose-50 rounded-md text-rose-500 transition"
+                                                className="cursor-pointer p-1.5 hover:bg-rose-50 rounded-md text-rose-500 transition"
                                             >
                                                 <Trash2 size={14} />
                                             </button>
