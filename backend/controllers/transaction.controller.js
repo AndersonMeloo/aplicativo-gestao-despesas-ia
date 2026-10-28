@@ -1,5 +1,5 @@
 import * as transactionService from '../services/transaction.service.js';
-import { validateAnalyze, validateListQuery, validateTransaction } from '../validators/transaction.validator.js';
+import { validateAnalyze, validateInstallments, validateListQuery, validateTransaction } from '../validators/transaction.validator.js';
 import { idParam } from '../validators/common.js';
 
 export const list = async (req, res) => {
@@ -10,8 +10,14 @@ export const getById = async (req, res) => {
     res.json(await transactionService.getById(req.userId, idParam(req.params.id)));
 };
 
+// Com "installments" maior que 1, o valor informado é o TOTAL e são criadas várias parcelas
 export const create = async (req, res) => {
-    res.status(201).json(await transactionService.create(req.userId, validateTransaction(req.body)));
+    const data = validateTransaction(req.body);
+    const installments = validateInstallments(req.body.installments);
+    if (installments > 1) {
+        return res.status(201).json(await transactionService.createInstallments(req.userId, data, installments));
+    }
+    res.status(201).json(await transactionService.create(req.userId, data));
 };
 
 export const update = async (req, res) => {
