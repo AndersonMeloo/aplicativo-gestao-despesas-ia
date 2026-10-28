@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
     ArrowLeftRight,
     Folder,
@@ -20,6 +20,13 @@ const navItems = [
 
 const Sidebar = () => {
     const { user, logout } = useAuth();
+    const navigate = useNavigate();
+
+    // Encerra a sessão e volta para a tela de login
+    const handleLogout = () => {
+        logout();
+        navigate('/login', { replace: true });
+    };
     const initial = user?.name?.[0]?.toUpperCase() || 'U';
 
     return (
@@ -65,10 +72,11 @@ const Sidebar = () => {
                 </div>
 
                 <button
-                    onClick={logout}
-                    title="Sair"
+                    onClick={handleLogout}
+                    className="mt-1 w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-medium text-slate-600 hover:bg-rose-50 hover:text-rose-600 transition"
                 >
-                    <LogOut size={16} />
+                    <LogOut size={18} strokeWidth={1.75} />
+                    Sair
                 </button>
             </div>
 
