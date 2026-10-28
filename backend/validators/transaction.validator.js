@@ -10,6 +10,14 @@ export const validateTransaction = (body = {}) => ({
     transactionDate: isoDate(body.transactionDate, 'Data'),
 });
 
+// Número de parcelas na criação (1 = à vista). Limite de 60 parcelas (5 anos).
+export const validateInstallments = (value) => {
+    if (value === undefined || value === null || value === '') return 1;
+    const n = Number(value);
+    if (!Number.isInteger(n) || n < 1 || n > 60) throw new HttpError(400, 'Número de parcelas deve ser entre 1 e 60');
+    return n;
+};
+
 export const validateListQuery = (query = {}) => {
     const limit = query.limit === undefined ? 50 : Number(query.limit);
     if (!Number.isInteger(limit) || limit < 1) throw new HttpError(400, 'limit inválido');
