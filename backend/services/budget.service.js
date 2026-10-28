@@ -8,7 +8,17 @@ import { today } from '../utils/dates.js';
 
 const DUPLICATE_MESSAGE = 'Já existe um orçamento para essa categoria nesse período';
 
-export const list = (userId) => analyticsService.getBudgetsWithSpent(userId);
+// Orçamentos com o valor gasto e, para cada categoria, as compras parceladas em andamento
+export const list = async (userId) => {
+    const [budgets, plans] = await Promise.all([
+        analyticsService.getBudgetsWithSpent(userId),
+        budgetRepo.findInstallmentPlans(userId, today()),
+    ]);
+    return budgets.map((b) => ({
+        ...b,
+        installment_plans: plans.filter((p) => p.category_id === b.category_id),
+    }));
+};
 
 export const create = async (userId, data) => {
     // Orçamento só faz sentido para categorias de despesa do próprio usuário
