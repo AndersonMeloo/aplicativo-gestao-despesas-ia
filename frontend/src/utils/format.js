@@ -12,7 +12,13 @@ export const formatCurrency = (amount, currency = 'BRL') => {
 // Formata uma data para exibição no padrão brasileiro
 export const formatDate = (dateStr) => {
     if (!dateStr) return '';
-    return new Date(dateStr).toLocaleDateString('pt-BR', {
+    // 'AAAA-MM-DD' é montada no horário local. Com new Date('2026-10-27') o navegador
+    // considera meia-noite em UTC, e no Brasil (UTC-3) a data aparecia um dia antes.
+    const onlyDate = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateStr);
+    const date = onlyDate
+        ? new Date(Number(onlyDate[1]), Number(onlyDate[2]) - 1, Number(onlyDate[3]))
+        : new Date(dateStr);
+    return date.toLocaleDateString('pt-BR', {
         month: 'short',
         day: 'numeric',
         year: 'numeric',
