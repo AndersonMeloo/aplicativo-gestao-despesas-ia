@@ -75,8 +75,9 @@ const Dashboard = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <KpiCard
-                    label="Saldo"
-                    value={formatCurrency(summary.balance, currency)}
+                    label="Saldo atual"
+                    value={formatCurrency(summary.totalBalance, currency)}
+                    hint={`Este mês: ${summary.balance >= 0 ? '+' : ''}${formatCurrency(summary.balance, currency)}`}
                     icon={Wallet}
                     accent="violet"
                 />
